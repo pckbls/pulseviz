@@ -1,0 +1,13 @@
+before_script:
+  - apt-get update -qy
+  - apt-get install -y psmisc pulseaudio cmake gcc g++ libglfw3 libglfw3-dev libglew2.0 libglew-dev libpulse0 libpulse-dev libfftw3-3 libfftw3-dev
+
+stages:
+  - build
+
+compile:
+  stage: build
+  image: debian:testing
+  script:
+    - mkdir build && cd build && cmake ..
+
