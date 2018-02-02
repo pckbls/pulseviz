@@ -2,8 +2,9 @@
 
 template<TextureColorFormat T>
 Texture1D<T>::Texture1D(size_t length)
-    : Texture<T>()
-    , length(length)
+    :
+    Texture<T>(),
+    length(length)
 {
     this->setup();
 

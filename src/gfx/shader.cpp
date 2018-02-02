@@ -6,8 +6,9 @@
 // TODO: Rename to ShaderProgram
 
 Shader::Shader(const std::string& vertex_shader_source, const std::string& fragment_shader_source)
-    : handle(0)
-    , linked(false)
+    :
+    handle(0),
+    linked(false)
 {
     this->handle = glCreateProgram();
     GLuint foo = this->compileAndAttachShader(GL_VERTEX_SHADER, vertex_shader_source);

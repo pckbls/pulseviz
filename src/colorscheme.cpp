@@ -1,9 +1,10 @@
 #include "colorscheme.h"
 
 ColorScheme::ColorScheme(PaletteColor background_color, PaletteColorVector palette_colors)
-    : background_color(background_color),
-      palette_colors(palette_colors),
-      palette_texture(nullptr)
+    :
+    background_color(background_color),
+    palette_colors(palette_colors),
+    palette_texture(nullptr)
 {}
 
 void ColorScheme::createPaletteTexture()

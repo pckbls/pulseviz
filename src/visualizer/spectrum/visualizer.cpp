@@ -52,7 +52,8 @@ static const char* fragment_shader_src = R"glsl(
     }
 )glsl";
 
-SpectrumVisualizer::SpectrumVisualizer(std::shared_ptr<SimpleRecordClient> src_ptr):
+SpectrumVisualizer::SpectrumVisualizer(std::shared_ptr<SimpleRecordClient> src_ptr)
+    :
     Visualizer(src_ptr),
     spectrum(std::vector<float>(constants.fft_size/2+1)),
     stft(

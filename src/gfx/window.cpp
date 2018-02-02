@@ -22,7 +22,8 @@ static void _onKeyPress(GLFWwindow* window, int key, int scancode, int action, i
 }
 
 Window::Window()
-    : window_handle(0)
+    :
+    window_handle(0)
 {
     this->window_handle = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
     if (!this->window_handle)

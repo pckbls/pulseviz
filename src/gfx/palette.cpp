@@ -5,7 +5,8 @@
 // TODO: Use GL_CLAMP, see: https://wiki.delphigl.com/index.php/glTexParameter
 
 PaletteColor::PaletteColor(float r, float g, float b)
-    : r(r), g(g), b(b)
+    :
+    r(r), g(g), b(b)
 {}
 
 PaletteTexture::PaletteTexture(size_t width, ColorVector colors):

@@ -1,8 +1,9 @@
 #include "fbo.h"
 
 FBO::FBO(Texture1D<TextureColorFormat::RGB> &texture)
-    : handle(0)
-    , texture(texture)
+    :
+    handle(0),
+    texture(texture)
 {
     glGenFramebuffers(1, &this->handle);
     this->bind();

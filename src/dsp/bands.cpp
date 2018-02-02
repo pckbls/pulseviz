@@ -44,7 +44,8 @@ std::vector<std::pair<float, float>> generateOctaveBands(unsigned int fraction)
 }
 
 BandsAnalyzer::BandsAnalyzer(STFT &stft, std::vector<std::pair<float, float>> frequency_bins, enum BandWeighting band_weighting)
-    : stft(stft)
+    :
+    stft(stft)
 {
     for (std::pair<float, float>& bin: frequency_bins)
     {

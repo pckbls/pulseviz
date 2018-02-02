@@ -72,7 +72,8 @@ static const char* fragment_shader_src = R"glsl(
     }
 )glsl";
 
-Spectrogram3DVisualizer::Spectrogram3DVisualizer(std::shared_ptr<SimpleRecordClient> src_ptr):
+Spectrogram3DVisualizer::Spectrogram3DVisualizer(std::shared_ptr<SimpleRecordClient> src_ptr)
+    :
     Visualizer(src_ptr),
     stft(
         src_ptr,

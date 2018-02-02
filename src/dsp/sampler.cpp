@@ -2,9 +2,10 @@
 #include "sampler.h"
 
 Sampler::Sampler(std::shared_ptr<SimpleRecordClient> src, size_t data_size, size_t chunk_size)
-    : data(data_size)
-    , chunk(chunk_size)
-    , src(src)
+    :
+    data(data_size),
+    chunk(chunk_size),
+    src(src)
 {
     // TODO: flush or drain?
     this->src->flush();

@@ -42,7 +42,8 @@ static const char* fragment_shader_src = R"glsl(
     }
 )glsl";
 
-WaveFormVisualizer::WaveFormVisualizer(std::shared_ptr<SimpleRecordClient> src_ptr):
+WaveFormVisualizer::WaveFormVisualizer(std::shared_ptr<SimpleRecordClient> src_ptr)
+    :
     Visualizer(src_ptr),
     sampler(src_ptr, 8192, 512),
     shader(vertex_shader_src, fragment_shader_src)

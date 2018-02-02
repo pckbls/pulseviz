@@ -53,7 +53,8 @@ static const char* fragment_shader_src = R"glsl(
     }
 )glsl";
 
-OctavebandsVisualizer::OctavebandsVisualizer(std::shared_ptr<SimpleRecordClient> src_ptr):
+OctavebandsVisualizer::OctavebandsVisualizer(std::shared_ptr<SimpleRecordClient> src_ptr)
+    :
     Visualizer(src_ptr),
     stft(
         this->src,
