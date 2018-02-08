@@ -6,9 +6,6 @@
 #include <fftw3.h>
 #include "visualizer.h"
 
-// TODO: https://stackoverflow.com/questions/6663222/doing-fft-in-realtime
-// https://en.wikipedia.org/wiki/Short-time_Fourier_transform
-
 const struct
 {
     float fft_size = 4096*2;

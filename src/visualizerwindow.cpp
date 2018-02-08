@@ -6,9 +6,6 @@
 #include "visualizer/spectrogram/visualizer.h"
 #include "visualizer/spectrogram3d/visualizer.h"
 
-// TODO: Factory pattern for visualizers
-// https://stackoverflow.com/questions/1832003/instantiating-classes-by-name-with-factory-pattern
-
 VisualizerWindow::VisualizerWindow(std::map<std::string, ColorScheme> colorschemes)
     :
     Window(),

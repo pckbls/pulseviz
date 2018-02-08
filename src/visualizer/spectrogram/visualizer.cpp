@@ -1,11 +1,3 @@
-// https://www.tuxboard.com/photos/2013/11/Ondulations-Modem-spectogramme.jpg
-// https://media.licdn.com/mpr/mpr/AAEAAQAAAAAAAAiKAAAAJDY1ZTQxMGE1LWIxZTAtNGZkNS1hY2U1LWFkMWM5N2JkN2MxZQ.jpg
-// http://nickrossiter.org.uk/hbweb/24%20hb%20juv%2021%20sept%202005%20south%20tyne%20long%20flight%20call.jpg
-// https://stackoverflow.com/a/13248668
-// http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-// https://www.opengl.org/discussion_boards/showthread.php/184634-Sharing-textures-between-contexts
-// https://www.youtube.com/watch?v=vvr9AMWEU-c
-
 #include <iostream>
 #include "visualizer.h"
 #include "constants.h"
