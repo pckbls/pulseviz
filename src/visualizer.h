@@ -16,7 +16,7 @@ class Visualizer
 
 public:
     Visualizer(std::shared_ptr<SimpleRecordClient> src_ptr);
-    virtual ~Visualizer(); // TODO: Enable virtual expression
+    virtual ~Visualizer();
     virtual const char *getTitle();
     virtual void render();
     virtual void onFramebuffersizeChanged(unsigned int width, unsigned int height);
