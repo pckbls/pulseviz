@@ -4,7 +4,7 @@
 
 Visualizer::Visualizer()
     :
-    src(SimpleRecordClient(10 * 1000)), // TODO: Make latency configurable.
+    src(SimpleRecordClient(10 * 1000, "pulseviz", "visualizer")), // TODO: Make latency configurable.
     quit_thread(false)
 {}
 

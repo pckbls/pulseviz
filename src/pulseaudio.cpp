@@ -14,7 +14,9 @@ const char* PulseAudioException::what() const noexcept
     return this->message.c_str();
 }
 
-SimpleRecordClient::SimpleRecordClient(pa_usec_t target_latency)
+SimpleRecordClient::SimpleRecordClient(pa_usec_t target_latency,
+                                       const std::string& name,
+                                       const std::string& stream_name)
     :
     pa_handle(nullptr)
 {
@@ -32,8 +34,8 @@ SimpleRecordClient::SimpleRecordClient(pa_usec_t target_latency)
 
     int error;
     this->pa_handle = pa_simple_new(
-        NULL, "TODO", PA_STREAM_RECORD, // TODO
-        NULL, "record", &sample_spec,
+        NULL, name.c_str(), PA_STREAM_RECORD,
+        NULL, stream_name.c_str(), &sample_spec,
         NULL, &buffer_attr, &error
     );
     if (!this->pa_handle)

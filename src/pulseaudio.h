@@ -18,7 +18,7 @@ struct PulseAudioException : std::exception
 class SimpleRecordClient
 {
 public:
-    SimpleRecordClient(pa_usec_t target_latency);
+    SimpleRecordClient(pa_usec_t target_latency, const std::string &name, const std::string &stream_name);
     SimpleRecordClient(SimpleRecordClient const& other);
     ~SimpleRecordClient();
 
