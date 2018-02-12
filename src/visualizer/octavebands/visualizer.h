@@ -32,7 +32,6 @@ protected:
     std::vector<Bar> bars;
     std::mutex render_mutex;
     Shader shader;
-    std::chrono::steady_clock::time_point last_render_tp;
 };
 
 #endif // SPECTRUM_H

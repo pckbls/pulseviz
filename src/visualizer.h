@@ -5,6 +5,7 @@
 #include <atomic>
 #include <mutex>
 #include <thread>
+#include <chrono>
 #include "pulseaudio.h"
 #include "colorscheme.h"
 
@@ -26,11 +27,13 @@ protected:
     virtual void audioThreadFunc();
     void startThread();
     void stopThread();
+    std::chrono::steady_clock::duration durationSinceLastUpdate();
 
     SimpleRecordClient src;
     std::shared_ptr<ColorScheme> colorscheme; // TODO: Why shared_ptr?
     std::atomic_bool quit_thread;
     std::thread audio_thread;
+    std::chrono::steady_clock::time_point last_render_tp;
 };
 
 #endif // VISUALIZER_H

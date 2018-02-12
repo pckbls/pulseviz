@@ -23,6 +23,14 @@ void Visualizer::stopThread()
         this->audio_thread.join();
 }
 
+std::chrono::steady_clock::duration Visualizer::durationSinceLastUpdate()
+{
+    // TODO: What shall we return on the very first function call?
+    auto duration = std::chrono::steady_clock::now() - this->last_render_tp;
+    this->last_render_tp = std::chrono::steady_clock::now();
+    return duration;
+}
+
 void Visualizer::audioThreadFunc()
 {
     while (!this->quit_thread)

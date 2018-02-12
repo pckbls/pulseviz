@@ -113,7 +113,7 @@ void OctavebandsVisualizer::onFramebuffersizeChanged(unsigned int /* width */, u
 
 void OctavebandsVisualizer::updateTicks()
 {
-    std::chrono::steady_clock::duration duration = std::chrono::steady_clock::now() - this->last_render_tp;
+    auto duration = this->durationSinceLastUpdate();
 
     for (Bar &bar: this->bars)
     {
@@ -186,7 +186,4 @@ void OctavebandsVisualizer::render()
     }
 
     this->render_mutex.unlock();
-
-    // TODO: Move to visualizer base class
-    this->last_render_tp = std::chrono::steady_clock::now();
 }
