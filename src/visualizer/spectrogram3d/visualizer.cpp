@@ -11,6 +11,8 @@ const struct
     float window_overlap = 0.5;
     float y_min = -70.0;
     float y_max = 0.0;
+    float width = 10.0; // frequency axis
+    float length = 10.0; // time axis
     bool scrolling = true;
 } constants;
 
@@ -90,9 +92,9 @@ Spectrogram3DVisualizer::Spectrogram3DVisualizer()
         for (unsigned int j = 0; j < this->grid_columns; j++)
             this->grid[i][j] = 0.0;
 
-    this->rotation.x = 55.0;
-    this->rotation.y = 0.0;
-    this->rotation.z = 35.0;
+    this->rotation.z = 0.0;
+    this->rotation.z = 0.0;
+    this->rotation.x = 80.0;
 
     this->startThread();
 }
@@ -130,13 +132,12 @@ void Spectrogram3DVisualizer::onFramebuffersizeChanged(unsigned int width, unsig
 }
 
 void Spectrogram3DVisualizer::drawPlane(float y) {
-    const float foo = 10.0;
     glColor4f(0.1, 0.1, 0.1, 0.5);
     glBegin(GL_QUADS);
-    glVertex3f(-foo, y, -foo);
-    glVertex3f(+foo, y, -foo);
-    glVertex3f(+foo, y, +foo);
-    glVertex3f(-foo, y, +foo);
+    glVertex3f(-constants.width, y, -constants.width);
+    glVertex3f(+constants.width, y, -constants.width);
+    glVertex3f(+constants.width, y, +constants.width);
+    glVertex3f(-constants.width, y, +constants.width);
     glEnd();
 }
 
@@ -151,10 +152,6 @@ void Spectrogram3DVisualizer::render()
 
     this->texture.updateTexture();
 
-    this->rotation.z = 0.0;
-    this->rotation.z = 0.0;
-    this->rotation.x = 80.0;
-
     float start_index = 0.0;
     if (constants.scrolling)
     {
@@ -162,22 +159,11 @@ void Spectrogram3DVisualizer::render()
         start_index = (float)this->texture.getCursorPosition() / (float)this->texture.getHistorySize();
         float column_width = 1.0f / (float)this->texture.getHistorySize();
         start_index += 0.5f * column_width;
-
-#if 0
-        if (start_index - last_start_index > 1.0f / (float)this->grid_rows || start_index < last_start_index)
-            last_start_index = start_index;
-        else
-            start_index = last_start_index;
-#endif
-
-        // start_index += 1.0f / ((float)this->grid_rows - 1); // TODO
-
-        // TODO: Snap start_index to multiples of 1/this->grid_rows? This might solve the jerkiness issues.
     }
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glTranslatef(0.0f, -0.5f, -24.0f);
+    glTranslatef(0.0f, 1.0f, -12.0f);
     glRotatef(this->rotation.x, 1.0f, 0.0f, 0.0f);
     glRotatef(this->rotation.y, 0.0f, 1.0f, 0.0f);
     glRotatef(this->rotation.z, 0.0f, 0.0f, 1.0f);
@@ -205,8 +191,8 @@ void Spectrogram3DVisualizer::render()
                 start_index + (float)i / (float)this->grid_rows
             );
             glVertex3f(
-                -5.0f + 10.0f * (float)j / (float)this->grid_columns,
-                -20.0f + 40.0f * (float)i / (float)this->grid_rows,
+                -(constants.width / 2.0f) + constants.width * (float)j / (float)this->grid_columns,
+                -(constants.length / 2.0f) + constants.length * (float)i / (float)this->grid_rows,
                 this->grid[i][j]
             );
         }
@@ -219,8 +205,8 @@ void Spectrogram3DVisualizer::render()
     {
         // TODO: Really +1?
         float y = (float)(this->texture.getCursorPosition() + 1) / (float)this->texture.getHistorySize();
-        y = -5.0f + 10.0f * y;
-        //this->drawPlane(y);
+        y = -(constants.length / 2.0f) + constants.length * y;
+        this->drawPlane(y);
     }
 
     this->render_mutex.unlock();
