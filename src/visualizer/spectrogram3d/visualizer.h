@@ -19,6 +19,7 @@ public:
 protected:
     void audioThreadFunc() override;
     void drawPlane(float y);
+    void rotate();
 
     STFT stft;
     SpectrogramTexture texture;

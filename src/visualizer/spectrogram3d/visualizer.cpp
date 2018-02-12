@@ -141,6 +141,12 @@ void Spectrogram3DVisualizer::drawPlane(float y) {
     glEnd();
 }
 
+void Spectrogram3DVisualizer::rotate()
+{
+    auto duration = this->durationSinceLastUpdate();
+    this->rotation.z += duration.count() * 0.00000001;
+}
+
 void Spectrogram3DVisualizer::render()
 {
     glEnable(GL_BLEND);
@@ -149,6 +155,8 @@ void Spectrogram3DVisualizer::render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     this->render_mutex.lock();
+
+    this->rotate();
 
     this->texture.updateTexture();
 
