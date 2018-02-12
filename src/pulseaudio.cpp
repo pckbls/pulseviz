@@ -16,7 +16,7 @@ const char* PulseAudioException::what() const noexcept
 
 SimpleRecordClient::SimpleRecordClient(pa_usec_t target_latency)
     :
-    pa_handle(NULL)
+    pa_handle(nullptr)
 {
     pa_sample_spec sample_spec;
     sample_spec.format = PA_SAMPLE_FLOAT32;
