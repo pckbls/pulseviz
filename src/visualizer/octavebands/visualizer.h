@@ -17,7 +17,7 @@ struct Bar
 class OctavebandsVisualizer : public Visualizer
 {
 public:
-    OctavebandsVisualizer(std::shared_ptr<SimpleRecordClient> src_ptr);
+    OctavebandsVisualizer();
     ~OctavebandsVisualizer();
     virtual const char *getTitle();
     void render();

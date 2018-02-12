@@ -1,20 +1,20 @@
 #include <iostream>
 #include "sampler.h"
 
-Sampler::Sampler(std::shared_ptr<SimpleRecordClient> src, size_t data_size, size_t chunk_size)
+Sampler::Sampler(SimpleRecordClient& src, size_t data_size, size_t chunk_size)
     :
     data(data_size),
     chunk(chunk_size),
     src(src)
 {
     // TODO: flush or drain?
-    this->src->flush();
+    this->src.flush();
 }
 
 void Sampler::readChunk()
 {
     // TODO: Explain blocking behavior!
-    this->src->read(this->chunk);
+    this->src.read(this->chunk);
 }
 
 void Sampler::appendToBuffer()

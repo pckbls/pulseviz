@@ -12,7 +12,7 @@
 class Sampler
 {
 public:
-    Sampler(std::shared_ptr<SimpleRecordClient> src, size_t data_size, size_t chunk_size);
+    Sampler(SimpleRecordClient& src, size_t data_size, size_t chunk_size);
     void readChunk();
     void appendToBuffer();
 
@@ -20,7 +20,7 @@ public:
 
 protected:
     std::vector<float> chunk;
-    std::shared_ptr<SimpleRecordClient> src;
+    SimpleRecordClient& src;
 };
 
 #endif // SAMPLER_H

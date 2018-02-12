@@ -13,7 +13,7 @@ std::vector<float> generateHammingWindow(unsigned int n)
 
 // TODO: Rename fft_size to sample_size?
 // TODO: Add window_size parameter
-STFT::STFT(std::shared_ptr<SimpleRecordClient> src, size_t fft_size, size_t window_size, float window_overlap, STFTWindow window)
+STFT::STFT(SimpleRecordClient& src, size_t fft_size, size_t window_size, float window_overlap, STFTWindow window)
     :
     coefficients(fft_size / 2 + 1),
     frequencies(fft_size / 2 + 1),
@@ -40,7 +40,7 @@ STFT::STFT(std::shared_ptr<SimpleRecordClient> src, size_t fft_size, size_t wind
     for (unsigned int i = 0; i < this->coefficients.size(); i++)
     {
         // TODO: This is probably wrong.
-        this->frequencies[i] = i / src->getSampleRate();
+        this->frequencies[i] = i / src.getSampleRate();
     }
 }
 

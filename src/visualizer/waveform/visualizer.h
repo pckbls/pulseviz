@@ -9,7 +9,7 @@
 class WaveFormVisualizer : public Visualizer
 {
 public:
-    WaveFormVisualizer(std::shared_ptr<SimpleRecordClient> src_ptr);
+    WaveFormVisualizer();
     ~WaveFormVisualizer();
     virtual const char *getTitle();
     void render();

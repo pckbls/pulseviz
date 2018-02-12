@@ -10,7 +10,7 @@
 class SpectrumVisualizer : public Visualizer
 {
 public:
-    SpectrumVisualizer(std::shared_ptr<SimpleRecordClient> src_ptr);
+    SpectrumVisualizer();
     ~SpectrumVisualizer();
     virtual const char *getTitle();
     void render();

@@ -10,7 +10,7 @@
 class Spectrogram3DVisualizer : public Visualizer
 {
 public:
-    Spectrogram3DVisualizer(std::shared_ptr<SimpleRecordClient> src_ptr);
+    Spectrogram3DVisualizer();
     ~Spectrogram3DVisualizer();
     const char *getTitle() override;
     void onFramebuffersizeChanged(unsigned int width, unsigned int height) override;

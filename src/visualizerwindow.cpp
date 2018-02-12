@@ -9,14 +9,11 @@
 VisualizerWindow::VisualizerWindow(std::map<std::string, ColorScheme> colorschemes)
     :
     Window(),
-    src(nullptr),
     visualizer(nullptr),
     visualizer_num(-1),
     palettes(colorschemes),
     palette_it(palettes.begin())
 {
-    this->src = std::make_shared<SimpleRecordClient>(10 * 1000);
-
     for (auto& colorscheme: this->palettes)
         colorscheme.second.createPaletteTexture();
 
@@ -61,7 +58,7 @@ void VisualizerWindow::createVisualizer()
     this->visualizer.reset();
 
     this->visualizer = std::unique_ptr<Visualizer>(
-        dynamic_cast<Visualizer*>(new VisualizerClass(this->src))
+        dynamic_cast<Visualizer*>(new VisualizerClass())
     );
 
     glfwSetWindowTitle(this->window_handle, this->visualizer->getTitle());

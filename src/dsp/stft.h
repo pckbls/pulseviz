@@ -12,7 +12,7 @@ enum class STFTWindow
 class STFT
 {
 public:
-    STFT(std::shared_ptr<SimpleRecordClient> src, size_t fft_size, size_t window_size, float window_overlap, enum STFTWindow window);
+    STFT(SimpleRecordClient& src, size_t fft_size, size_t window_size, float window_overlap, enum STFTWindow window);
     ~STFT();
     void slide();
     const std::vector<float> &getFrequencies();

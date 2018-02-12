@@ -2,9 +2,9 @@
 #include <GL/glew.h>
 #include "visualizer.h"
 
-Visualizer::Visualizer(std::shared_ptr<SimpleRecordClient> src_ptr)
+Visualizer::Visualizer()
     :
-    src(src_ptr),
+    src(SimpleRecordClient(10 * 1000)), // TODO: Make latency configurable.
     quit_thread(false)
 {}
 
@@ -28,7 +28,7 @@ void Visualizer::audioThreadFunc()
     while (!this->quit_thread)
     {
         std::vector<float> chunk(512);
-        this->src->read(chunk);
+        this->src.read(chunk);
     }
 }
 

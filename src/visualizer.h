@@ -15,7 +15,7 @@ class Visualizer
     friend class VisualizerWindow;
 
 public:
-    Visualizer(std::shared_ptr<SimpleRecordClient> src_ptr);
+    Visualizer();
     virtual ~Visualizer();
     virtual const char *getTitle();
     virtual void render();
@@ -26,7 +26,8 @@ protected:
     virtual void audioThreadFunc();
     void startThread();
     void stopThread();
-    std::shared_ptr<SimpleRecordClient> src;
+
+    SimpleRecordClient src;
     std::shared_ptr<ColorScheme> colorscheme; // TODO: Why shared_ptr?
     std::atomic_bool quit_thread;
     std::thread audio_thread;

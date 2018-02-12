@@ -21,7 +21,6 @@ protected:
     void cycleThroughPalettes();
     template<class VisualizerClass> void createVisualizer();
 
-    std::shared_ptr<SimpleRecordClient> src;
     std::unique_ptr<Visualizer> visualizer;
     unsigned int visualizer_num;
 
