@@ -18,7 +18,7 @@ class Visualizer
 public:
     Visualizer();
     virtual ~Visualizer();
-    virtual const char *getTitle();
+    virtual const char *getTitle(); // TODO: std::string
     virtual void render();
     virtual void onFramebuffersizeChanged(unsigned int width, unsigned int height);
     virtual void setColorScheme(ColorScheme& colorscheme);
