@@ -29,7 +29,6 @@ public:
     void flush();
 
 private:
-    // TODO: Use smart pointer!
     pa_simple *pa_handle;
 };
 
