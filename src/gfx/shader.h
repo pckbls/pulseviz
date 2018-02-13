@@ -8,6 +8,7 @@ class Shader
 {
 public:
     Shader(const std::string& vertex_shader_source, const std::string& fragment_shader_source);
+    Shader(const std::string& name);
     Shader(Shader const& other);
     ~Shader();
     void bind();
@@ -16,6 +17,7 @@ public:
     GLint getUniformLocation(const std::string &name);
 
 private:
+    void initialize(const std::string& vertex_shader_source, const std::string& fragment_shader_source);
     void compileAndLink();
     GLuint compileAndAttachShader(GLuint type, const std::string& source);
     void link();

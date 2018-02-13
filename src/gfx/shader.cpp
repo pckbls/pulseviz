@@ -1,26 +1,38 @@
 #include "shader.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 // TODO: https://open.gl/drawing
 // TODO: http://www.geeks3d.com/20111115/how-to-compute-the-position-in-a-vertex-shader-glsl-opengl-part-3/
 // TODO: Rename to ShaderProgram
+
+Shader::Shader(const std::string& name)
+    :
+    handle(0),
+    linked(false)
+{
+    std::string vertex_shader_path = "shaders/" + name + ".vert.glsl";
+    std::ifstream vertex_ifstream(vertex_shader_path);
+    if (!vertex_ifstream)
+        throw "Cannot open vertex shader source file for reading";
+    std::string vertex_shader_src{std::istreambuf_iterator<char>(vertex_ifstream), std::istreambuf_iterator<char>()};
+
+    std::string fragment_shader_path = "shaders/" + name + ".frag.glsl";
+    std::ifstream fragment_ifstream(fragment_shader_path);
+    if (!fragment_ifstream)
+        throw "Cannot open fragment shader source file for reading";
+    std::string fragment_shader_src{std::istreambuf_iterator<char>(fragment_ifstream), std::istreambuf_iterator<char>()};
+
+    this->initialize(vertex_shader_src, fragment_shader_src);
+}
 
 Shader::Shader(const std::string& vertex_shader_source, const std::string& fragment_shader_source)
     :
     handle(0),
     linked(false)
 {
-    this->handle = glCreateProgram();
-    GLuint foo = this->compileAndAttachShader(GL_VERTEX_SHADER, vertex_shader_source);
-    GLuint bar = this->compileAndAttachShader(GL_FRAGMENT_SHADER, fragment_shader_source);
-    this->link();
-
-    // TODO
-    glDetachShader(this->handle, foo);
-    glDeleteShader(foo);
-
-    glDetachShader(this->handle, bar);
-    glDeleteShader(bar);
+    this->initialize(vertex_shader_source, fragment_shader_source);
 }
 
 Shader::Shader(Shader const& /* other */)
@@ -33,6 +45,22 @@ Shader::~Shader()
     this->unbind();
     if (this->handle)
         glDeleteProgram(this->handle);
+}
+
+void Shader::initialize(const std::string &vertex_shader_source, const std::string &fragment_shader_source)
+{
+    this->handle = glCreateProgram();
+    GLuint foo = this->compileAndAttachShader(GL_VERTEX_SHADER, vertex_shader_source);
+    GLuint bar = this->compileAndAttachShader(GL_FRAGMENT_SHADER, fragment_shader_source);
+    this->link();
+
+    // TODO
+    glDetachShader(this->handle, foo);
+    glDeleteShader(foo);
+
+    glDetachShader(this->handle, bar);
+    glDeleteShader(bar);
+
 }
 
 void Shader::bind()
