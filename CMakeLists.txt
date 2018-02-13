@@ -14,6 +14,8 @@ find_library(FFTW3F fftw3f)
 find_package(Threads REQUIRED)
 
 file(GLOB SOURCES src/*.cpp src/**/*.cpp src/**/**/*.cpp)
+file(GLOB_RECURSE SHADER_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/**/*.glsl)
+
 add_executable(pulseviz ${SOURCES} ${SHADER_SOURCES})
 target_link_libraries(
     pulseviz
@@ -25,4 +27,11 @@ target_link_libraries(
     ${GLEW}
     ${FFTW3F}
 )
-
+add_custom_target(
+    copy_shader_files ALL
+    COMMAND ${CMAKE_COMMAND}
+        -E copy_directory
+        ${CMAKE_SOURCE_DIR}/src/shader
+        ${CMAKE_BINARY_DIR}/shader
+)
+add_dependencies(pulseviz copy_shader_files)
