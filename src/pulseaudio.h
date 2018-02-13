@@ -1,5 +1,5 @@
-#ifndef AUDIO_H
-#define AUDIO_H
+#ifndef PULSEAUDIO_H
+#define PULSEAUDIO_H
 
 #include <exception>
 #include <string>
@@ -32,4 +32,4 @@ private:
     pa_simple *pa_handle;
 };
 
-#endif // AUDIO_H
+#endif // PULSEAUDIO_H
