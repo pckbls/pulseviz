@@ -9,7 +9,7 @@ class Shader
 public:
     Shader(const std::string& vertex_shader_source, const std::string& fragment_shader_source);
     Shader(const std::string& name);
-    Shader(Shader const& other);
+    Shader(Shader const& other) = delete;
     ~Shader();
     void bind();
     void unbind();

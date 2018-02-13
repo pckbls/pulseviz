@@ -42,11 +42,6 @@ SimpleRecordClient::SimpleRecordClient(pa_usec_t target_latency,
         throw PulseAudioException("pa_simple_new() failed", error);
 }
 
-SimpleRecordClient::SimpleRecordClient(SimpleRecordClient const& /* other */)
-{
-    throw "Do not use this";
-}
-
 SimpleRecordClient::~SimpleRecordClient()
 {
     this->flush();

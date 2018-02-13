@@ -35,11 +35,6 @@ Shader::Shader(const std::string& vertex_shader_source, const std::string& fragm
     this->initialize(vertex_shader_source, fragment_shader_source);
 }
 
-Shader::Shader(Shader const& /* other */)
-{
-    throw "Do not use this";
-}
-
 Shader::~Shader()
 {
     this->unbind();
