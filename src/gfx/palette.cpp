@@ -3,6 +3,7 @@
 #include <iostream>
 
 // TODO: Use GL_CLAMP, see: https://wiki.delphigl.com/index.php/glTexParameter
+// TODO: Use GL_CLAMP_TO_BORDER and set specific "error" color using GL_TEXTURE_BORDER_COLOR
 
 PaletteColor::PaletteColor(float r, float g, float b)
     :

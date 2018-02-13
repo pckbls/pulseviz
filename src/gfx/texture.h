@@ -33,6 +33,8 @@ protected:
     void setup(); // TODO: Remove
     GLuint getColorFormatAsGLuint();
 
+    // TODO: Disable the copy constructor then we can use
+    // a unique_ptr instead of a shared_ptr
     std::shared_ptr<GLuint> shared_handle;
 };
 
