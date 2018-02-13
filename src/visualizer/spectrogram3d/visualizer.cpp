@@ -16,64 +16,6 @@ const struct
     bool scrolling = true;
 } constants;
 
-static const char* vertex_shader_src = R"glsl(
-    #version 120
-
-    uniform sampler2D texture;
-    attribute int is_spectrogram_vertex;
-    varying float magnitude;
-
-    void main()
-    {
-        vec2 tex_coord = gl_MultiTexCoord0.xy;
-
-        // TODO: Proper log scaling!
-        tex_coord.x = pow(tex_coord.x, 3.0);
-
-        vec4 position = gl_Vertex;
-        //if (is_spectrogram_vertex > 0)
-        if (true)
-        {
-            magnitude = texture2D(texture, tex_coord).x;
-            position.z = magnitude * 1.3;
-        }
-
-        gl_Position = gl_ModelViewProjectionMatrix * position;
-    }
-)glsl";
-
-static const char* fragment_shader_src = R"glsl(
-    #version 120
-
-    varying float magnitude;
-
-    uniform sampler1D palette;
-
-    void main(void)
-    {
-        if (magnitude > 1.0)
-        {
-            // This should not happen!
-            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-        }
-        else
-        {
-            // gl_FragColor = vec4(texcoord.x, texcoord.y, 0.0, 1.0);
-
-            // gl_FragColor = texture1D(palette, texture2D(texture, texcoord));
-
-            if (magnitude < 0.0 || magnitude > 1.0)
-            {
-                // This should not happen
-                gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-                gl_FragColor = texture1D(palette, 0.0);
-            }
-            else
-                gl_FragColor = texture1D(palette, magnitude);
-        }
-    }
-)glsl";
-
 Spectrogram3DVisualizer::Spectrogram3DVisualizer()
     :
     Visualizer(),
@@ -85,7 +27,7 @@ Spectrogram3DVisualizer::Spectrogram3DVisualizer()
         STFTWindow::HAMMING
     ),
     texture(this->stft, this->grid_rows),
-    shader(vertex_shader_src, fragment_shader_src),
+    shader("spectrogram3d"),
     last_start_index(0.0)
 {
     for (unsigned int i = 0; i < this->grid_rows; i++)

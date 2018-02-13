@@ -8,45 +8,11 @@
 // TODO: Use the same rendering trick as in our spectrum analyzer!
 // That way we could render huge chunks of data
 
-static const char* vertex_shader_src = R"glsl(
-    #version 120
-
-    varying float magnitude;
-
-    void main()
-    {
-        magnitude = gl_MultiTexCoord0.y;
-        gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-    }
-)glsl";
-
-static const char* fragment_shader_src = R"glsl(
-    #version 120
-
-    varying float magnitude;
-
-    uniform sampler1D palette;
-
-    void main(void)
-    {
-        // gl_FragColor = vec4(texcoord.x, texcoord.y, 0.0, 1.0);
-        // gl_FragColor = texture1D(palette, texture2D(texture, texcoord));
-
-        if (magnitude < 0.0 || magnitude > 1.0)
-        {
-            // This should not happen
-            gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-        }
-        else
-            gl_FragColor = texture1D(palette, magnitude);
-    }
-)glsl";
-
 WaveFormVisualizer::WaveFormVisualizer()
     :
     Visualizer(),
     sampler(this->src, 8192, 512),
-    shader(vertex_shader_src, fragment_shader_src)
+    shader("waveform")
 {
     this->startThread();
 }

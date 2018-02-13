@@ -1,0 +1,9 @@
+#version 120
+
+varying vec2 tex_coord;
+
+void main()
+{
+    tex_coord = gl_MultiTexCoord0.xy;
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+}

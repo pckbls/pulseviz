@@ -2,56 +2,6 @@
 #include "visualizer.h"
 #include "constants.h"
 
-static const char* vertex_shader_src = R"glsl(
-    #version 120
-
-    varying vec2 tex_coord;
-
-    void main()
-    {
-        tex_coord = gl_MultiTexCoord0.xy;
-        gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-    }
-)glsl";
-
-static const char* fragment_shader_src = R"glsl(
-    #version 120
-
-    varying vec2 tex_coord;
-
-    uniform sampler2D texture;
-    uniform sampler1D palette;
-
-    void main(void)
-    {
-        vec2 texcoord = tex_coord;
-
-        // TODO: Proper log scaling!
-        texcoord.x = pow(texcoord.x, 2.0);
-
-        if (texcoord.x > 1.0)
-        {
-            // This should not happen!
-            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-        }
-        else
-        {
-            // gl_FragColor = vec4(texcoord.x, texcoord.y, 0.0, 1.0);
-
-            // gl_FragColor = texture1D(palette, texture2D(texture, texcoord));
-
-            float magnitude = texture2D(texture, texcoord).x;
-            if (magnitude < 0.0 || magnitude > 1.0)
-            {
-                // This should not happen
-                gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-            }
-            else
-                gl_FragColor = texture1D(palette, magnitude);
-        }
-    }
-)glsl";
-
 SpectrogramVisualizer::SpectrogramVisualizer()
     :
     Visualizer(),
@@ -63,7 +13,7 @@ SpectrogramVisualizer::SpectrogramVisualizer()
         STFTWindow::HAMMING
     ),
     texture(this->stft, 2048),
-    shader(vertex_shader_src, fragment_shader_src)
+    shader("spectrogram")
 {
     this->startThread();
 }
