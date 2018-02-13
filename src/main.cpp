@@ -29,6 +29,16 @@ std::map<std::string, ColorScheme> initializeColorSchemes()
                     {1.00, {1.0f, 1.0f, 1.0f}}
                 }
             }
+        },
+        {
+            "solarized",
+            {
+                {0.99f, 0.96f, 0.89f},
+                {
+                    {0.00, {211.0f/255.0f, 54.0f/255.0f, 130.0f/255.0f}},
+                    {1.00, {220.0f/255.0f, 50.0f/255.0f, 47.0f/255.0f}}
+                }
+            }
         }
     };
 
