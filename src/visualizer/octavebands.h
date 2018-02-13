@@ -3,10 +3,10 @@
 
 #include <chrono>
 #include <fftw3.h>
-#include "../../dsp/bands.h"
-#include "../../visualizer.h"
-#include "../../gfx/shader.h"
-#include "../../gfx/palette.h"
+#include "../dsp/bands.h"
+#include "../visualizer.h"
+#include "../gfx/shader.h"
+#include "../gfx/palette.h"
 
 struct Bar
 {

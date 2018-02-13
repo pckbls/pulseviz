@@ -1,10 +1,10 @@
 #include <iostream>
 #include "visualizerwindow.h"
-#include "visualizer/waveform/visualizer.h"
-#include "visualizer/spectrum/visualizer.h"
-#include "visualizer/octavebands/visualizer.h"
-#include "visualizer/spectrogram/visualizer.h"
-#include "visualizer/spectrogram3d/visualizer.h"
+#include "visualizer/waveform.h"
+#include "visualizer/spectrum.h"
+#include "visualizer/octavebands.h"
+#include "visualizer/spectrogram.h"
+#include "visualizer/spectrogram3d.h"
 
 VisualizerWindow::VisualizerWindow(std::map<std::string, ColorScheme> colorschemes)
     :

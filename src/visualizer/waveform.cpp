@@ -3,7 +3,7 @@
 #include <thread>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include "visualizer.h"
+#include "waveform.h"
 
 // TODO: Use the same rendering trick as in our spectrum analyzer!
 // That way we could render huge chunks of data

@@ -1,5 +1,5 @@
 #include <iostream>
-#include "visualizer.h"
+#include "spectrogram.h"
 
 const struct
 {

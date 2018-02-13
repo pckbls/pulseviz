@@ -1,10 +1,10 @@
 #ifndef WAVEFORM_H
 #define WAVEFORM_H
 
-#include "../../visualizer.h"
-#include "../../dsp/sampler.h"
-#include "../../gfx/shader.h"
-#include "../../gfx/palette.h"
+#include "../visualizer.h"
+#include "../dsp/sampler.h"
+#include "../gfx/shader.h"
+#include "../gfx/palette.h"
 
 class WaveFormVisualizer : public Visualizer
 {

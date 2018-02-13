@@ -2,10 +2,10 @@
 #define SPECTRUM_H
 
 #include <fftw3.h>
-#include "../../visualizer.h"
-#include "../../dsp/stft.h"
-#include "../../gfx/shader.h"
-#include "../../gfx/palette.h"
+#include "../visualizer.h"
+#include "../dsp/stft.h"
+#include "../gfx/shader.h"
+#include "../gfx/palette.h"
 
 class SpectrumVisualizer : public Visualizer
 {

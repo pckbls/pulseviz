@@ -5,7 +5,7 @@
 #include <math.h>
 #include <GL/glew.h>
 #include <fftw3.h>
-#include "visualizer.h"
+#include "octavebands.h"
 
 const struct
 {

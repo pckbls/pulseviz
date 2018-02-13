@@ -2,10 +2,10 @@
 #define SPECTROGRAM_H
 
 #include <GL/glew.h>
-#include "../../visualizer.h"
-#include "../../gfx/shader.h"
-#include "../../dsp/stft.h"
-#include "../../dsp/spectrogramtexture.h"
+#include "../visualizer.h"
+#include "../gfx/shader.h"
+#include "../dsp/stft.h"
+#include "../dsp/spectrogramtexture.h"
 
 class SpectrogramVisualizer : public Visualizer
 {
