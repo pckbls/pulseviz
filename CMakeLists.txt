@@ -13,8 +13,8 @@ find_library(GLEW NAMES GLEW)
 find_library(FFTW3F fftw3f)
 find_package(Threads REQUIRED)
 
-file(GLOB_RECURSE SOURCES src/**/*.cpp)
-file(GLOB_RECURSE SHADER_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/**/*.glsl)
+file(GLOB_RECURSE SOURCES src/*.cpp)
+file(GLOB_RECURSE SHADER_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*.glsl)
 
 add_executable(pulseviz ${SOURCES} ${SHADER_SOURCES})
 target_link_libraries(
