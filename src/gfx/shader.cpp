@@ -12,13 +12,13 @@ Shader::Shader(const std::string& name)
     handle(0),
     linked(false)
 {
-    std::string vertex_shader_path = "shaders/" + name + ".vert.glsl";
+    std::string vertex_shader_path = "shader/" + name + ".vert.glsl";
     std::ifstream vertex_ifstream(vertex_shader_path);
     if (!vertex_ifstream)
         throw "Cannot open vertex shader source file for reading";
     std::string vertex_shader_src{std::istreambuf_iterator<char>(vertex_ifstream), std::istreambuf_iterator<char>()};
 
-    std::string fragment_shader_path = "shaders/" + name + ".frag.glsl";
+    std::string fragment_shader_path = "shader/" + name + ".frag.glsl";
     std::ifstream fragment_ifstream(fragment_shader_path);
     if (!fragment_ifstream)
         throw "Cannot open fragment shader source file for reading";
