@@ -10,13 +10,6 @@ Texture<T>::Texture()
 }
 
 template<TextureColorFormat T>
-void Texture<T>::setup()
-{
-    this->bind();
-    this->setParameters();
-}
-
-template<TextureColorFormat T>
 Texture<T>::~Texture()
 {
     if (this->shared_handle.use_count() > 1)
@@ -31,32 +24,54 @@ GLuint Texture<T>::getHandle()
     return *this->shared_handle;
 }
 
+template<TextureColorFormat T>
+void Texture<T>::setTextureFiltering(TextureFiltering filtering)
+{
+    if (filtering == TextureFiltering::NEAREST)
+    {
+        glTexParameteri(this->getTarget(), GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(this->getTarget(), GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
+    else if (filtering == TextureFiltering::BILINEAR)
+    {
+        glTexParameteri(this->getTarget(), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(this->getTarget(), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+    else if (filtering == TextureFiltering::TRILINEAR)
+    {
+        this->bind();
+        glGenerateMipmap(this->getTarget());
+
+        glTexParameteri(this->getTarget(), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(this->getTarget(), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(this->getTarget(), GL_GENERATE_MIPMAP, GL_TRUE); // TODO: Legacy, remove!
+    }
+    else
+        throw "Unknown filtering type";
+}
+
 template<>
-GLuint Texture<TextureColorFormat::Luminance>::getColorFormatAsGLuint() {
+GLuint Texture<TextureColorFormat::Luminance>::getColorFormatAsGLuint()
+{
     return GL_LUMINANCE;
 }
 
 template<>
-GLuint Texture<TextureColorFormat::RGB>::getColorFormatAsGLuint() {
+GLuint Texture<TextureColorFormat::RGB>::getColorFormatAsGLuint()
+{
     return GL_RGB;
 }
 
 template<TextureColorFormat T>
 void Texture<T>::bind()
 {
-    throw "Not implemented.";
+    glBindTexture(this->getTarget(), *this->shared_handle);
 }
 
 template<TextureColorFormat T>
 void Texture<T>::unbind()
 {
-    throw "Not implemented.";
-}
-
-template<TextureColorFormat T>
-void Texture<T>::setParameters()
-{
-    throw "Not implemented.";
+    glBindTexture(this->getTarget(), 0);
 }
 
 // TODO: Can we do better than that?!...

@@ -24,14 +24,14 @@ class Texture
 public:
     Texture();
     virtual ~Texture();
-    virtual void bind();
-    virtual void unbind();
+    void bind();
+    void unbind();
     GLuint getHandle();
+    void setTextureFiltering(TextureFiltering filtering);
 
 protected:
-    virtual void setParameters(); // TODO: Remove
-    void setup(); // TODO: Remove
     GLuint getColorFormatAsGLuint();
+    virtual GLuint getTarget() = 0; // TODO: Make this constexpr?
 
     // TODO: Disable the copy constructor then we can use
     // a unique_ptr instead of a shared_ptr

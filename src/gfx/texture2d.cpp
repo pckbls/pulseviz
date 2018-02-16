@@ -6,9 +6,7 @@ Texture2D<T>::Texture2D(size_t width, size_t height)
     :
     Texture<T>(),
     width(width), height(height)
-{
-    this->setup();
-}
+{}
 
 template<TextureColorFormat T>
 void Texture2D<T>::uploadData(const std::vector<float>& data)
@@ -32,18 +30,6 @@ void Texture2D<T>::uploadData(const std::vector<float>& data)
 }
 
 template<TextureColorFormat T>
-void Texture2D<T>::bind()
-{
-    glBindTexture(GL_TEXTURE_2D, *this->shared_handle);
-}
-
-template<TextureColorFormat T>
-void Texture2D<T>::unbind()
-{
-    glBindTexture(GL_TEXTURE_1D, 0);
-}
-
-template<TextureColorFormat T>
 size_t Texture2D<T>::getWidth() const
 {
     return this->width;
@@ -53,15 +39,6 @@ template<TextureColorFormat T>
 size_t Texture2D<T>::getHeight() const
 {
     return this->height;
-}
-
-template<TextureColorFormat T>
-void Texture2D<T>::setParameters()
-{
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 template<TextureColorFormat T>
@@ -83,34 +60,27 @@ void Texture2D<T>::subImage(unsigned int x, unsigned int y,
 template<TextureColorFormat T>
 void Texture2D<T>::setTextureFiltering(TextureFiltering filtering)
 {
-    // TODO: GL_TEXTURE_1D/2D based on Texture Class type
-    if (filtering == TextureFiltering::NEAREST)
+    if ((filtering == TextureFiltering::TRILINEAR)
+        && (this->width % 2 != 0 || this->height % 2 != 0))
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        std::cerr << this->width << " " << this->height << std::endl;
+        throw "Mipmap generation requires both texture width and height to be multiples of 2";
     }
-    else if (filtering == TextureFiltering::BILINEAR)
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    }
-    else if (filtering == TextureFiltering::TRILINEAR)
-    {
-        if (this->width % 2 != 0 || this->height % 2 != 0)
-        {
-            std::cerr << this->width << " " << this->height << std::endl;
-            throw "Mipmap generation requires both texture width and height to be multiples of 2";
-        }
 
-        this->bind();
-        glGenerateMipmap(GL_TEXTURE_2D);
+    Texture<T>::setTextureFiltering(filtering);
+}
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // TODO: Legacy, remove!
-    }
-    else
-        throw "Unknown filtering type";
+template<TextureColorFormat T>
+void Texture2D<T>::setTextureWrapMode(GLuint x, GLuint y)
+{
+    glTexParameteri(this->getTarget(), GL_TEXTURE_WRAP_S, x);
+    glTexParameteri(this->getTarget(), GL_TEXTURE_WRAP_T, y);
+}
+
+template<TextureColorFormat T>
+GLuint Texture2D<T>::getTarget()
+{
+    return GL_TEXTURE_2D;
 }
 
 template class Texture2D<TextureColorFormat::Luminance>;

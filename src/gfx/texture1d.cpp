@@ -6,7 +6,7 @@ Texture1D<T>::Texture1D(size_t length)
     Texture<T>(),
     length(length)
 {
-    this->setup();
+    this->bind();
 
     std::vector<float> texture_data(this->length * 3);
     for (float& value: texture_data)
@@ -41,25 +41,15 @@ size_t Texture1D<T>::getLength() const
 }
 
 template<TextureColorFormat T>
-void Texture1D<T>::setParameters()
+void Texture1D<T>::setTextureWrapMode(GLuint x)
 {
-    // TODO: Is this really stored per texture? Otherwise the function should be global.
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(this->getTarget(), GL_TEXTURE_WRAP_S, x);
 }
 
 template<TextureColorFormat T>
-void Texture1D<T>::bind()
+GLuint Texture1D<T>::getTarget()
 {
-    glBindTexture(GL_TEXTURE_1D, *this->shared_handle);
-}
-
-template<TextureColorFormat T>
-void Texture1D<T>::unbind()
-{
-    glBindTexture(GL_TEXTURE_1D, 0);
+    return GL_TEXTURE_1D;
 }
 
 template class Texture1D<TextureColorFormat::Luminance>;

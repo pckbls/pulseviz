@@ -10,12 +10,10 @@ public:
     Texture1D(size_t length);
     void uploadData(const std::vector<float>& data);
     size_t getLength() const;
-    void bind() override;
-    void unbind() override;
+    void setTextureWrapMode(GLuint x);
 
 protected:
-    void setParameters() override;
-
+    GLuint getTarget() override;
     size_t length;
 };
 
