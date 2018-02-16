@@ -112,8 +112,6 @@ void OctavebandsVisualizer::render()
     glActiveTexture(GL_TEXTURE0 + 0);
     glUniform1i(this->shader.getUniformLocation("palette"), 0);
     this->colorscheme->getPaletteTexture().bind();
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
     unsigned int i = 0;
     for (Bar &bar: this->bars)
