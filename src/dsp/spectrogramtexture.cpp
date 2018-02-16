@@ -22,8 +22,7 @@ SpectrogramTexture::SpectrogramTexture(STFT &stft, size_t history_size)
         value = 0.0;
 
     this->bind();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); // TOOD
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // TODO
+    this->setTextureWrapMode(GL_CLAMP, GL_REPEAT);
     this->setTextureFiltering(TextureFiltering::BILINEAR);
     this->uploadData(this->texture_data);
 }
