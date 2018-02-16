@@ -14,8 +14,8 @@ PaletteTexture::PaletteTexture(size_t width, ColorVector colors):
     Texture1D(width)
 {
     this->bind();
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP); // TODO
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP); // TODO
+    this->setTextureFiltering(TextureFiltering::BILINEAR);
+    this->setTextureWrapMode(GL_CLAMP_TO_EDGE);
 
     // Save the current viewport state.
     GLint viewport[4];
