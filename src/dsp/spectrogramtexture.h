@@ -10,6 +10,7 @@ class SpectrogramTexture : public Texture2D<TextureColorFormat::Luminance>
 {
 public:
     SpectrogramTexture(STFT& stft, size_t history_size);
+    SpectrogramTexture(SpectrogramTexture const& other) = delete;
     ~SpectrogramTexture();
     void updateTextureData();
     void updateTexture();

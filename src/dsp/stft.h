@@ -13,6 +13,7 @@ class STFT
 {
 public:
     STFT(SimpleRecordClient& src, size_t fft_size, size_t window_size, float window_overlap, enum STFTWindow window);
+    STFT(STFT const& other) = delete;
     ~STFT();
     void slide();
     const std::vector<float> &getFrequencies();
@@ -24,7 +25,6 @@ protected:
     Sampler sampler;
     std::vector<float> window;
     float window_sum;
-    // TODO: Use shared_ptr !!! because of copy constructor evilness!
     fftwf_plan plan;
     float *in;
     fftwf_complex *out;

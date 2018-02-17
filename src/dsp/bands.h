@@ -37,6 +37,7 @@ class BandsAnalyzer
 {
 public:
     BandsAnalyzer(STFT& stft, std::vector<std::pair<float, float>> frequency_bins, BandWeighting band_weighting);
+    BandsAnalyzer(BandsAnalyzer const& other) = delete;
     void tick();
     const std::vector<Band>& getBands();
 

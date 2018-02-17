@@ -13,6 +13,7 @@ class Sampler
 {
 public:
     Sampler(SimpleRecordClient& src, size_t data_size, size_t chunk_size);
+    Sampler(Sampler const& other) = delete;
     void readChunk();
     void appendToBuffer();
 
