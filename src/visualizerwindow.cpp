@@ -10,7 +10,7 @@ VisualizerWindow::VisualizerWindow(std::map<std::string, ColorScheme> colorschem
     :
     Window(),
     visualizer(nullptr),
-    visualizer_num(-1),
+    visualizer_num(static_cast<unsigned int>(-1)),
     palettes(colorschemes),
     palette_it(palettes.begin())
 {
@@ -24,7 +24,12 @@ void VisualizerWindow::onFramebufferSizeChange(int width, int height)
 {
     glViewport(0, 0, width, height);
     if (this->visualizer)
-        this->visualizer->onFramebuffersizeChanged(width, height);
+    {
+        this->visualizer->onFramebuffersizeChanged(
+            static_cast<unsigned int>(width),
+            static_cast<unsigned int>(height)
+        );
+    }
 }
 
 void VisualizerWindow::onKeyPress(int key, int /* scancode */, int action, int /* mods */)
@@ -65,7 +70,10 @@ void VisualizerWindow::createVisualizer()
 
     int width, height;
     glfwGetWindowSize(this->window_handle, &width, &height);
-    this->visualizer->onFramebuffersizeChanged(width, height);
+    this->visualizer->onFramebuffersizeChanged(
+        static_cast<unsigned int>(width),
+        static_cast<unsigned int>(height)
+    );
 
     this->visualizer->setColorScheme(palette_it->second);
 }
@@ -80,7 +88,7 @@ void VisualizerWindow::cycleThroughVisualizers()
         case 2: this->createVisualizer<OctavebandsVisualizer>(); break;
         case 3: this->createVisualizer<SpectrogramVisualizer>(); break;
         case 4: this->createVisualizer<Spectrogram3DVisualizer>(); break;
-        default: throw "This should not happen!"; break;
+        default: throw "This should not happen!";
     }
 }
 
