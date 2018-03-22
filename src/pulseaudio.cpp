@@ -26,17 +26,17 @@ SimpleRecordClient::SimpleRecordClient(pa_usec_t target_latency,
     sample_spec.channels = 1;
 
     pa_buffer_attr buffer_attr;
-    buffer_attr.maxlength = -1;
-    buffer_attr.minreq = -1;
-    buffer_attr.prebuf = -1;
-    buffer_attr.tlength = -1;
-    buffer_attr.fragsize = pa_usec_to_bytes(target_latency, &sample_spec);
+    buffer_attr.maxlength = static_cast<uint32_t>(-1);
+    buffer_attr.minreq = static_cast<uint32_t>(-1);
+    buffer_attr.prebuf = static_cast<uint32_t>(-1);
+    buffer_attr.tlength = static_cast<uint32_t>(-1);
+    buffer_attr.fragsize = static_cast<uint32_t>(pa_usec_to_bytes(target_latency, &sample_spec));
 
     int error;
     this->pa_handle = pa_simple_new(
-        NULL, name.c_str(), PA_STREAM_RECORD,
-        NULL, stream_name.c_str(), &sample_spec,
-        NULL, &buffer_attr, &error
+        nullptr, name.c_str(), PA_STREAM_RECORD,
+        nullptr, stream_name.c_str(), &sample_spec,
+        nullptr, &buffer_attr, &error
     );
     if (!this->pa_handle)
         throw PulseAudioException("pa_simple_new() failed", error);
