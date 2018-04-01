@@ -98,7 +98,9 @@ void Spectrogram3DVisualizer::render()
 
     this->render_mutex.lock();
 
+#if 0
     this->rotate();
+#endif
 
     this->texture.updateTexture();
 
