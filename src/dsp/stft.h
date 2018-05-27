@@ -1,26 +1,38 @@
-#ifndef STFT_H
+﻿#ifndef STFT_H
 #define STFT_H
 
 #include "sampler.h"
 
-enum class STFTWindow
-{
-    RECTANGLE,
-    HAMMING
-};
+class BandsAnalyzer;
 
 class STFT
 {
 public:
-    STFT(SimpleRecordClient& src, size_t fft_size, size_t window_size, float window_overlap, enum STFTWindow window);
+    friend class BandsAnalyzer;
+
+    enum class Window
+    {
+        RECTANGLE,
+        HAMMING
+    };
+
+    static std::vector<float> generateRectangleWindow(unsigned int n);
+    static std::vector<float> generateHammingWindow(unsigned int n);
+    static float convertToDecibel(float magnitude);
+
+    STFT(SimpleRecordClient& src, size_t sample_size, size_t window_size, float window_overlap, STFT::Window window);
     STFT(STFT const& other) = delete;
     ~STFT();
     void slide();
     const std::vector<float> &getFrequencies();
+    float getBinWidth();
 
-    std::vector<float> coefficients;
+    std::vector<float> coefficients; // TODO: Make private
 
 protected:
+    constexpr static const float min_dB = -200.0; // TODO: Is this the right way to define a static constant?
+
+    size_t sample_size;
     std::vector<float> frequencies;
     Sampler sampler;
     std::vector<float> window;

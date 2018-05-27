@@ -24,7 +24,7 @@ static float clip(float n, float lower, float upper)
     return std::max(lower, std::min(n, upper));
 }
 
-std::vector<std::pair<float, float>> generateOctaveBands(unsigned int fraction)
+std::vector<BandsAnalyzer::FrequencyBin> generateOctaveBands(unsigned int fraction)
 {
     std::vector<std::pair<float, float>> result;
 
@@ -43,11 +43,15 @@ std::vector<std::pair<float, float>> generateOctaveBands(unsigned int fraction)
     return result;
 }
 
-BandsAnalyzer::BandsAnalyzer(STFT &stft, std::vector<std::pair<float, float>> frequency_bins, enum BandWeighting band_weighting)
+BandsAnalyzer::BandsAnalyzer(STFT &stft, std::vector<FrequencyBin> frequency_bins, BandWeighting band_weighting)
     :
     stft(stft)
 {
-    for (std::pair<float, float>& bin: frequency_bins)
+    const std::vector<float> fft_frequencies = stft.getFrequencies();
+    float k = (float)this->stft.sampler.data.size() / (float)this->stft.sampler.src.getSampleRate();
+    unsigned int max_upper_index = fft_frequencies.size() - 1;
+
+    for (FrequencyBin& bin: frequency_bins)
     {
         Band band;
 
@@ -55,14 +59,8 @@ BandsAnalyzer::BandsAnalyzer(STFT &stft, std::vector<std::pair<float, float>> fr
         band.frequencies.upper = bin.second;
         band.frequencies.center = (band.frequencies.upper + band.frequencies.lower) / 2.0;
 
-        // TODO
-        {
-            const std::vector<float> fft_frequencies = stft.getFrequencies();
-            float k = (float)8192.0 / (float)44100.0; // TODO !!!
-            unsigned int max_upper_index = fft_frequencies.size() - 1;
-            band.indices.lower = clip(std::ceil(band.frequencies.lower * k), 0, max_upper_index);
-            band.indices.upper = clip(std::ceil(band.frequencies.upper * k), 0, max_upper_index);
-        }
+        band.indices.lower = clip(std::ceil(band.frequencies.lower * k), 0, max_upper_index);
+        band.indices.upper = clip(std::ceil(band.frequencies.upper * k), 0, max_upper_index);
 
         switch (band_weighting)
         {
@@ -80,11 +78,10 @@ void BandsAnalyzer::tick()
 
     for (Band& band: this->bands)
     {
-        float foo = 0.0;
+        band.magnitude = 0.0;
         for (unsigned int i = band.indices.lower; i <= band.indices.upper; i++)
-            foo += this->stft.coefficients[i];
-        foo /= band.indices.upper - band.indices.lower + 1; // TODO: +1?
-        band.magnitude = foo;
+            band.magnitude += this->stft.coefficients[i];
+        band.magnitude /= band.indices.upper - band.indices.lower + 1; // TODO: +1?
     }
 }
 

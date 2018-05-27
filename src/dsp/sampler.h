@@ -9,8 +9,14 @@
 #include <fftw3.h>
 #include "../pulseaudio.h"
 
+class BandsAnalyzer;
+class STFT;
+
 class Sampler
 {
+    friend class STFT;
+    friend class BandsAnalyzer;
+
 public:
     Sampler(SimpleRecordClient& src, size_t data_size, size_t chunk_size);
     Sampler(Sampler const& other) = delete;

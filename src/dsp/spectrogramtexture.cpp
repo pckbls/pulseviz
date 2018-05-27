@@ -34,7 +34,8 @@ void SpectrogramTexture::updateTextureData()
 {
     for (unsigned int column = 0; column < this->stft.coefficients.size(); column++)
     {
-        float magnitude = (this->stft.coefficients[column] - constants.y_min) / (constants.y_max - constants.y_min);
+        float coefficient_in_dB = STFT::convertToDecibel(this->stft.coefficients[column]);
+        float magnitude = (coefficient_in_dB - constants.y_min) / (constants.y_max - constants.y_min);
         size_t offset = this->insert_index * this->stft.coefficients.size() + column;
         this->texture_data[offset] = magnitude;
     }

@@ -2,34 +2,25 @@
 #include <math.h>
 #include "stft.h"
 
-// TODO: Use templates!
-std::vector<float> generateHammingWindow(unsigned int n)
-{
-    std::vector<float> result(n);
-    for (unsigned int i = 0; i < n; i++)
-        result[i] = 25.0/46.0 - 21.0/46.0 * cos(2 * M_PI * i / (n - 1));
-    return result;
-}
-
-// TODO: Rename fft_size to sample_size?
-// TODO: Add window_size parameter
-STFT::STFT(SimpleRecordClient& src, size_t fft_size, size_t window_size, float window_overlap, STFTWindow window)
+STFT::STFT(SimpleRecordClient& src, size_t sample_size, size_t window_size, float window_overlap, Window window)
     :
-    coefficients(fft_size / 2 + 1),
-    frequencies(fft_size / 2 + 1),
+    coefficients(sample_size / 2 + 1),
+    sample_size(sample_size),
+    frequencies(sample_size / 2 + 1),
     sampler(
         src,
-        fft_size,
+        sample_size,
         std::floor((float)window_size * (1.0 - window_overlap))
     )
 {
-    this->in = fftwf_alloc_real(fft_size);
-    this->out = fftwf_alloc_complex(fft_size); // TODO: Can be smaller!
-    this->plan = fftwf_plan_dft_r2c_1d(fft_size, this->in, this->out, FFTW_ESTIMATE);
+    this->in = fftwf_alloc_real(sample_size);
+    this->out = fftwf_alloc_complex(this->coefficients.size());
+    this->plan = fftwf_plan_dft_r2c_1d(sample_size, this->in, this->out, FFTW_ESTIMATE);
 
     switch (window)
     {
-        case STFTWindow::HAMMING: this->window = generateHammingWindow(fft_size); break;
+        case STFT::Window::RECTANGLE: this->window = this->generateRectangleWindow(sample_size); break;
+        case STFT::Window::HAMMING: this->window = this->generateHammingWindow(sample_size); break;
         default: throw "Unknown window type"; break;
     }
 
@@ -63,28 +54,62 @@ void STFT::slide()
 
     for (size_t i = 0; i < this->coefficients.size(); i++)
     {
-        // TODO: This might be wrong!
-        // Interesting side note: this->spectrum.data()[i] is SOOOOO much slower than this->spectrum.data
-        float abs_value = sqrt(out[i][0]*out[i][0] + out[i][1]*out[i][1]);
+        float magnitude = sqrt(out[i][0]*out[i][0] + out[i][1]*out[i][1]);
 
-        abs_value *= 2.0;
-        abs_value *= abs_value;
-        abs_value /= pow(this->window_sum, 2.0);
+        // "Whenever doing windowing, it is necessary to compensate for
+        // loss of energy due to multiplication by that window.
+        // This is defined as division by sum of window samples (sum(win)).
+        // In case of rectangular window (or now window), it is as simple as
+        // division by N, where N is the DFT length." - jojek
+        // Source: https://dsp.stackexchange.com/a/32080
+        magnitude *= 2.0;
+        magnitude /= this->window_sum;
 
-        if (abs_value == 0.0)
-            abs_value = -200.0; // TODO
-        else
-            abs_value = 10.0 * log10(abs_value);
-
-        // TODO !!!
-        if (abs_value < -200)
-            abs_value = -200.0;
-
-        this->coefficients[i] = abs_value;
+        this->coefficients[i] = magnitude;
     }
 }
 
 const std::vector<float>& STFT::getFrequencies()
 {
     return this->frequencies;
+}
+
+float STFT::getBinWidth()
+{
+    return (2.0f / (float)this->sample_size) * (this->sampler.src.getSampleRate() / 2.0f);
+}
+
+std::vector<float> STFT::generateHammingWindow(unsigned int n)
+{
+    std::vector<float> result(n);
+    for (unsigned int i = 0; i < n; i++)
+        result[i] = 25.0/46.0 - 21.0/46.0 * cos(2 * M_PI * i / (n - 1));
+    return result;
+}
+
+float STFT::convertToDecibel(float magnitude)
+{
+    // Convert the magnitude into dbFS and clamp it between [-min_dB; 0]
+    if (magnitude == 0.0f)
+        magnitude = STFT::min_dB;
+    else
+    {
+        magnitude = 20.0f * log10(magnitude);
+        if (magnitude < STFT::min_dB)
+            magnitude = STFT::min_dB;
+    }
+
+    // TODO: Remove this
+    if (magnitude > 0.0f)
+        throw "This should not happen at all";
+
+    return magnitude;
+}
+
+std::vector<float> STFT::generateRectangleWindow(unsigned int n)
+{
+    std::vector<float> result(n);
+    for (unsigned int i = 0; i < n; i++)
+        result[i] = 1.0;
+    return result;
 }
