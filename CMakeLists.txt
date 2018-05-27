@@ -35,3 +35,5 @@ add_custom_target(
         ${CMAKE_BINARY_DIR}/shader
 )
 add_dependencies(pulseviz copy_shader_files)
+
+add_subdirectory(tests)
