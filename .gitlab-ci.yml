@@ -5,9 +5,8 @@ before_script:
 stages:
   - build
 
-compile:
+compile_and_test:
   stage: build
   image: debian:testing
   script:
-    - mkdir build && cd build && cmake ..
-
+    - mkdir build && cd build && cmake .. && make && ./tests/run_tests
