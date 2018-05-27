@@ -3,6 +3,8 @@
 
 #include "texture.h"
 
+// TODO: Make most of the methods static!
+
 template<TextureColorFormat T>
 class Texture2D : public Texture<T>
 {

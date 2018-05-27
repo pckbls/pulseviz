@@ -5,12 +5,14 @@
 #include <memory>
 #include <GL/glew.h>
 
+// TODO: Move inside class!
 enum class TextureColorFormat
 {
     RGB,
     Luminance
 };
 
+// TODO: Move inside class!
 enum class TextureFiltering
 {
     NEAREST,
