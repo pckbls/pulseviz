@@ -18,7 +18,10 @@ struct PulseAudioException : std::exception
 class SimpleRecordClient
 {
 public:
-    SimpleRecordClient(pa_usec_t target_latency, const std::string &name, const std::string &stream_name);
+    // TODO: Re-order arguments!
+    SimpleRecordClient(pa_usec_t target_latency,
+                       const std::string &name, const std::string &stream_name,
+                       unsigned int sample_rate = 44100, uint8_t channels = 1);
     SimpleRecordClient(SimpleRecordClient const& other) = delete;
     ~SimpleRecordClient();
 

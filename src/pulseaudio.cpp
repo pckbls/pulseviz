@@ -16,14 +16,16 @@ const char* PulseAudioException::what() const noexcept
 
 SimpleRecordClient::SimpleRecordClient(pa_usec_t target_latency,
                                        const std::string& name,
-                                       const std::string& stream_name)
+                                       const std::string& stream_name,
+                                       unsigned int sample_rate,
+                                       uint8_t channels)
     :
     pa_handle(nullptr)
 {
     pa_sample_spec sample_spec;
     sample_spec.format = PA_SAMPLE_FLOAT32;
-    sample_spec.rate = 44100;
-    sample_spec.channels = 1;
+    sample_spec.rate = sample_rate;
+    sample_spec.channels = channels;
 
     pa_buffer_attr buffer_attr;
     buffer_attr.maxlength = static_cast<uint32_t>(-1);
