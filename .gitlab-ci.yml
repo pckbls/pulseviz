@@ -1,6 +1,6 @@
 before_script:
   - apt-get update -qy
-  - apt-get install -y psmisc pulseaudio cmake gcc g++ libglfw3 libglfw3-dev libglew2.0 libglew-dev libpulse0 libpulse-dev libfftw3-3 libfftw3-dev
+  - apt-get install -y psmisc pulseaudio cmake gcc g++ libglfw3 libglfw3-dev libglew2.0 libglew-dev libpulse0 libpulse-dev libfftw3-3 libfftw3-dev googletest libgtest-dev libglm-dev
 
 stages:
   - build
