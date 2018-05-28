@@ -38,7 +38,7 @@ add_custom_target(
     copy_default_config ALL
     COMMAND ${CMAKE_COMMAND}
         -E copy
-        ${CMAKE_SOURCE_DIR}/etc/pulseviz.ini
+        ${CMAKE_SOURCE_DIR}/share/pulseviz.ini
         ${CMAKE_BINARY_DIR}/pulseviz.ini
 )
 add_dependencies(pulseviz copy_shader_files copy_default_config)
