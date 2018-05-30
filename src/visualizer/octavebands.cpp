@@ -27,7 +27,7 @@ OctavebandsVisualizer::OctavebandsVisualizer()
         constants.fft_size,
         constants.window_size,
         constants.window_overlap,
-        STFTWindow::HAMMING
+        STFT::Window::HAMMING
     ),
     bands_analyzer(this->stft, generateOctaveBands(constants.n), BandWeighting::Z),
     bars(this->bands_analyzer.getBands().size()),
@@ -61,7 +61,7 @@ void OctavebandsVisualizer::audioThreadFunc()
         unsigned int i = 0;
         for (Bar &bar: this->bars)
         {
-            bar.height = this->bands_analyzer.getBands()[i].magnitude;
+            bar.height = STFT::convertToDecibel(this->bands_analyzer.getBands()[i].magnitude);
             i += 1;
         }
         this->render_mutex.unlock();

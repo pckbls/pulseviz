@@ -19,7 +19,7 @@ SpectrogramVisualizer::SpectrogramVisualizer()
         constants.fft_size,
         constants.window_size,
         constants.window_overlap,
-        STFTWindow::HAMMING
+        STFT::Window::HAMMING
     ),
     texture(this->stft, 2048),
     shader("spectrogram")
@@ -39,12 +39,18 @@ const char* SpectrogramVisualizer::getTitle()
 
 void SpectrogramVisualizer::audioThreadFunc()
 {
-    while (!this->quit_thread)
+    try {
+        while (!this->quit_thread)
+        {
+            this->stft.slide();
+            this->render_mutex.lock();
+            this->texture.updateTextureData();
+            this->render_mutex.unlock();
+        }
+    }
+    catch (const char* e)
     {
-        this->stft.slide();
-        this->render_mutex.lock();
-        this->texture.updateTextureData();
-        this->render_mutex.unlock();
+        std::cerr << "Caught exception: " << e << std::endl;
     }
 }
 

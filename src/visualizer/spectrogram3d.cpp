@@ -24,7 +24,7 @@ Spectrogram3DVisualizer::Spectrogram3DVisualizer()
         constants.fft_size,
         constants.window_size,
         constants.window_overlap,
-        STFTWindow::HAMMING
+        STFT::Window::HAMMING
     ),
     texture(this->stft, this->grid_rows),
     shader("spectrogram3d"),

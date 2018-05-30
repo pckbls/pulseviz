@@ -24,7 +24,7 @@ SpectrumVisualizer::SpectrumVisualizer()
         constants.fft_size,
         constants.window_size,
         constants.window_overlap,
-        STFTWindow::HAMMING
+        STFT::Window::HAMMING
     ),
     shader("spectrum")
 {
@@ -49,7 +49,7 @@ void SpectrumVisualizer::audioThreadFunc()
 
         this->data_mutex.lock();
         for (unsigned int i = 0; i < this->spectrum.size(); i++)
-            this->spectrum[i] = this->stft.coefficients[i];
+            this->spectrum[i] = STFT::convertToDecibel(this->stft.coefficients[i]);
         this->data_mutex.unlock();
     }
 }
