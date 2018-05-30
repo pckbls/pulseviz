@@ -25,4 +25,10 @@ target_link_libraries(run_tests
     GTest::Main
 )
 
+# Allows accessing the test data directory from within the C++ test code.
+# Thanks: https://cmake.org/pipermail/cmake/2009-November/033047.html
+add_definitions(-DTEST_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
+
+add_definitions(-DSHARE_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../share")
+
 gtest_add_tests(TARGET run_tests)
