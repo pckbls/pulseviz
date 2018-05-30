@@ -9,28 +9,46 @@
 
 class IniParserException : public std::runtime_error
 {
-// TODO: Why do I have to define this?
 public:
-    IniParserException(const char* message)
-        : std::runtime_error(message)
-    {}
+    IniParserException(std::string message, unsigned int line = 0, std::string line_content = "");
+    unsigned int getLine() const;
+    const std::string& getLineContent() const;
+
+protected:
+    std::string message;
+    unsigned int line;
+    std::string line_content;
+};
+
+class IniParserDataException : public std::runtime_error
+{
+public:
+    IniParserDataException(std::string what);
+};
+
+class IniParserTypeConversionException : public std::runtime_error
+{
+public:
+    IniParserTypeConversionException(std::string section, std::string key, std::string type);
+    const char* what() const noexcept;
+
+protected:
+    std::string reason;
 };
 
 class IniParser
 {
 public:
     using SectionData = std::map<std::string, std::string>;
-
-    // TODO: Custom class that raises custom exception when using the [ ]
-    // syntax for accessing members.
     using SectionNameDataMap = std::map<std::string, SectionData>;
 
     IniParser();
     void parse(std::istream& s);
 
-    // TODO: Make this templated so that we can automatically decode the strings into
-    // basic data types such as int/bool etc.
-    const std::string& getOption(const std::string& section, const std::string& key) const;
+    const std::string& getOption(const std::string& section, const std::string& key) const; // TODO: Rename to getOptionAsString
+    bool getOptionAsBool(const std::string& section, const std::string& key) const;
+    unsigned int getOptionAsUnsignedInteger(const std::string& section, const std::string& key) const;
+
     const SectionNameDataMap& getData() const;
 
 protected:
