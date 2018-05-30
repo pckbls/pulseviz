@@ -90,7 +90,6 @@ void IniParser::parse(std::istream& s)
         }
 
         // Found an unknown statement.
-        std::cerr << line << std::endl;
         throw IniParserException("Do not know how to parse this line.", line_number, line);
     }
 
