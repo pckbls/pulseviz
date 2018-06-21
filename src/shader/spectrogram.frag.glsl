@@ -12,7 +12,8 @@ void main(void)
     // TODO: Proper log scaling!
     texcoord.x = pow(texcoord.x, 2.0);
 
-    if (texcoord.x > 1.0)
+    // TODO: Is this check really correct?
+    if (texcoord.x >= 1.0)
     {
         // This should not happen!
         gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
