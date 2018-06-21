@@ -116,7 +116,7 @@ const std::string& IniParser::getOption(const std::string& section, const std::s
     }
     catch (std::out_of_range&)
     {
-        throw IniParserDataException("Cannot find section'" + section + '"');
+        throw IniParserDataException("Cannot find section '" + section + "'.");
     }
 }
 
