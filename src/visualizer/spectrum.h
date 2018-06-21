@@ -10,18 +10,30 @@
 class SpectrumVisualizer : public Visualizer
 {
 public:
+    static void loadConfig(const IniParser& ini);
+    static const std::string name;
+
     SpectrumVisualizer();
-    ~SpectrumVisualizer();
-    virtual const char *getTitle();
-    void render();
-    void onFramebuffersizeChanged(unsigned int width, unsigned int height);
+    ~SpectrumVisualizer() override;
+
+    const std::string& getName() const override;
+    const std::string& getTitle() const override;
+
+    void attachSRC() override;
+    void detatchSRC() override;
+    void draw() override;
+    void resize(int width, int height) override;
 
 protected:
-    std::vector<float> spectrum;
-    STFT stft;
-    std::mutex data_mutex; // TODO: Rename to spectrum_mutex
-    Shader shader;
     void audioThreadFunc();
+    bool quit_thread;
+    std::thread audio_thread;
+
+    std::vector<float> spectrum;
+    std::mutex data_mutex; // TODO: Rename to spectrum_mutex
+
+    Shader shader;
+    PaletteTexture palette;
 };
 
 #endif // SPECTRUM_H

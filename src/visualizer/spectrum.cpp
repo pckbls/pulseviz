@@ -6,56 +6,75 @@
 #include <fftw3.h>
 #include "spectrum.h"
 
-const struct
+struct
 {
     float fft_size = 4096*2;
     float window_size = 1024;
     float window_overlap = 0.5;
-    float y_min = -70.0;
+    float y_min = -100.0;
     float y_max = 0.0;
 } constants;
+
+const std::string SpectrumVisualizer::name = "spectrum";
+const std::string title = "Spectrum Visualizer";
+
+void SpectrumVisualizer::loadConfig(const IniParser& ini)
+{
+    constants.fft_size = ini.getOptionAsUnsignedInteger("spectrum", "fft_size");
+    constants.window_size = ini.getOptionAsUnsignedInteger("spectrum", "window_size");
+}
 
 SpectrumVisualizer::SpectrumVisualizer()
     :
     Visualizer(),
     spectrum(std::vector<float>(constants.fft_size/2+1)),
-    stft(
-        this->src,
-        constants.fft_size,
-        constants.window_size,
-        constants.window_overlap,
-        STFT::Window::HAMMING
-    ),
-    shader("spectrum")
-{
-    this->startThread();
-}
+    shader("spectrum"),
+    palette{16, {
+        {0.0, {1.0, 0.0, 0.0}},
+        {0.5, {1.0, 0.0, 1.0}},
+        {0.6, {1.0, 1.0, 1.0}},
+        {1.0, {1.0, 1.0, 1.0}},
+    }}
+{}
 
 SpectrumVisualizer::~SpectrumVisualizer()
+{}
+
+const std::string& SpectrumVisualizer::getName() const
 {
-    this->stopThread();
+    return this->name;
 }
 
-const char* SpectrumVisualizer::getTitle()
+const std::string& SpectrumVisualizer::getTitle() const
 {
-    return "Spectrum Visualizer";
+    return title;
 }
 
 void SpectrumVisualizer::audioThreadFunc()
 {
+    SimpleRecordClient src(10 * 1000, "pulseviz", "spectrum");
+    STFT stft(
+        src,
+        constants.fft_size,
+        constants.window_size,
+        constants.window_overlap,
+        STFT::Window::HAMMING
+    );
+
     while (!this->quit_thread)
     {
-        this->stft.slide();
+        stft.slide();
 
         this->data_mutex.lock();
         for (unsigned int i = 0; i < this->spectrum.size(); i++)
-            this->spectrum[i] = STFT::convertToDecibel(this->stft.coefficients[i]);
+            this->spectrum[i] = STFT::convertToDecibel(stft.coefficients[i]);
         this->data_mutex.unlock();
     }
 }
 
-void SpectrumVisualizer::onFramebuffersizeChanged(unsigned int /* width */, unsigned int /* height */)
+void SpectrumVisualizer::resize(int width, int height)
 {
+    glViewport(0, 0, width, height);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glMatrixMode(GL_PROJECTION);
@@ -63,7 +82,7 @@ void SpectrumVisualizer::onFramebuffersizeChanged(unsigned int /* width */, unsi
     glOrtho(0.0, 1.0, constants.y_min, constants.y_max, -1.0, 1.0);
 }
 
-void SpectrumVisualizer::render()
+void SpectrumVisualizer::draw()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -80,7 +99,7 @@ void SpectrumVisualizer::render()
 
     glActiveTexture(GL_TEXTURE0 + 0);
     glUniform1i(this->shader.getUniformLocation("palette"), 0);
-    glBindTexture(GL_TEXTURE_1D, this->colorscheme->getPaletteTexture().getHandle());
+    glBindTexture(GL_TEXTURE_1D, this->palette.getHandle());
 
     this->shader.bind();
     glLineWidth(2.0);
@@ -103,4 +122,19 @@ void SpectrumVisualizer::render()
     this->shader.unbind();
 
     this->data_mutex.unlock();
+}
+
+void SpectrumVisualizer::attachSRC()
+{
+
+    this->quit_thread = false;
+    this->audio_thread = std::thread([this] {
+        this->audioThreadFunc();
+    });
+}
+
+void SpectrumVisualizer::detatchSRC()
+{
+    this->quit_thread = true;
+    this->audio_thread.join();
 }

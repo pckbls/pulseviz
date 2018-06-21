@@ -9,16 +9,29 @@
 class WaveFormVisualizer : public Visualizer
 {
 public:
+    static void loadConfig(const IniParser& ini);
+    static const std::string name;
+
     WaveFormVisualizer();
-    ~WaveFormVisualizer();
-    virtual const char *getTitle();
-    void render();
+    ~WaveFormVisualizer() override;
+
+    const std::string& getName() const override;
+    const std::string& getTitle() const override;
+
+    void attachSRC() override;
+    void detatchSRC() override;
+    void draw() override;
 
 protected:
     void audioThreadFunc();
+    bool quit_thread;
+    std::thread audio_thread;
+
+    std::vector<float> samples;
     std::mutex mutex;
-    Sampler sampler;
+
     Shader shader;
+    PaletteTexture palette;
 };
 
 #endif // WAVEFORM_H

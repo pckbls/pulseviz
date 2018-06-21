@@ -6,8 +6,8 @@
 
 const struct
 {
-    float fft_size = 4096;
-    float window_size = 1024;
+    unsigned int fft_size = 4096;
+    unsigned int window_size = 1024;
     float window_overlap = 0.5;
     float y_min = -70.0;
     float y_max = 0.0;
@@ -16,18 +16,27 @@ const struct
     bool scrolling = true;
 } constants;
 
+const std::string Spectrogram3DVisualizer::name = "spectrogram3d";
+const std::string title = "Spectrogram3D Visualizer";
+
+void Spectrogram3DVisualizer::loadConfig(const IniParser& ini)
+{
+    (void)ini;
+}
+
 Spectrogram3DVisualizer::Spectrogram3DVisualizer()
     :
     Visualizer(),
-    stft(
-        this->src,
-        constants.fft_size,
-        constants.window_size,
-        constants.window_overlap,
-        STFT::Window::HAMMING
-    ),
-    texture(this->stft, this->grid_rows),
+    row((constants.fft_size / 2) + 1),
+    texture(this->grid_rows, row.size()),
     shader("spectrogram3d"),
+    palette{16, {
+        {0.00, {0.0f, 0.0f, 0.0f}},
+        {0.10, {0.0f, 0.0f, 0.5f}},
+        {0.30, {1.0f, 0.0f, 1.0f}},
+        {0.80, {1.0f, 1.0f, 0.0f}},
+        {1.00, {1.0f, 1.0f, 1.0f}}
+    }},
     last_start_index(0.0)
 {
     for (unsigned int i = 0; i < this->grid_rows; i++)
@@ -37,40 +46,44 @@ Spectrogram3DVisualizer::Spectrogram3DVisualizer()
     this->rotation.z = 0.0;
     this->rotation.z = 0.0;
     this->rotation.x = 80.0;
-
-    this->startThread();
 }
 
 Spectrogram3DVisualizer::~Spectrogram3DVisualizer()
+{}
+
+const std::string& Spectrogram3DVisualizer::getName() const
 {
-    this->stopThread();
+    return this->name;
 }
 
-const char* Spectrogram3DVisualizer::getTitle()
+const std::string& Spectrogram3DVisualizer::getTitle() const
 {
-    return "Spectrogram 3D Visualizer";
+    return title;
 }
 
 void Spectrogram3DVisualizer::audioThreadFunc()
 {
+    SimpleRecordClient src(10 * 1000, "pulseviz", "spectrogram3d");
+    STFT stft(
+        src,
+        constants.fft_size,
+        constants.window_size,
+        constants.window_overlap,
+        STFT::Window::HAMMING
+    );
+
     while (!this->quit_thread)
     {
-        this->stft.slide();
+        stft.slide();
         this->render_mutex.lock();
-        this->texture.updateTextureData();
+        // TODO: I think this section could be optimized. A for loop looks expensive.
+        for (unsigned int i = 0; i < stft.coefficients.size(); i++)
+        {
+            float coefficient_in_dB = STFT::convertToDecibel(stft.coefficients[i]);
+            this->row[i] = (coefficient_in_dB - constants.y_min) / (constants.y_max - constants.y_min);
+        }
         this->render_mutex.unlock();
     }
-}
-
-void Spectrogram3DVisualizer::onFramebuffersizeChanged(unsigned int width, unsigned int height)
-{
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glm::mat4x4 matrix = glm::perspective(5.0f, (float)width / (float)height, 1.0f, 1000.0f);
-    glLoadMatrixf(glm::value_ptr(matrix));
 }
 
 void Spectrogram3DVisualizer::drawPlane(float y) {
@@ -85,32 +98,49 @@ void Spectrogram3DVisualizer::drawPlane(float y) {
 
 void Spectrogram3DVisualizer::rotate()
 {
+#if 0
     auto duration = this->durationSinceLastUpdate();
     this->rotation.z += duration.count() * 0.00000001;
+#endif
 }
 
-void Spectrogram3DVisualizer::render()
+void Spectrogram3DVisualizer::resize(int width, int height)
+{
+    glViewport(0, 0, width, height);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glm::mat4x4 matrix = glm::perspective(5.0f, (float)width / (float)height, 1.0f, 1000.0f);
+    glLoadMatrixf(glm::value_ptr(matrix));
+}
+
+void Spectrogram3DVisualizer::draw()
 {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    this->render_mutex.lock();
-
 #if 0
     this->rotate();
 #endif
 
-    this->texture.updateTexture();
+    this->render_mutex.lock();
+    this->texture.insertRow(this->row);
+    this->render_mutex.unlock();
 
-    float start_index = 0.0;
+    float start_index;
     if (constants.scrolling)
     {
-        // TODO: Explain the cleverness!
-        start_index = (float)this->texture.getCursorPosition() / (float)this->texture.getHistorySize();
-        float column_width = 1.0f / (float)this->texture.getHistorySize();
-        start_index += 0.5f * column_width;
+        auto coordinates = this->texture.getCursorCoordinates();
+        start_index = coordinates.first;
+    }
+    else
+    {
+        start_index = 0.0f;
     }
 
     glMatrixMode(GL_MODELVIEW);
@@ -130,7 +160,7 @@ void Spectrogram3DVisualizer::render()
 
     glActiveTexture(GL_TEXTURE1 + 0);
     glUniform1i(this->shader.getUniformLocation("palette"), 1);
-    glBindTexture(GL_TEXTURE_1D, this->colorscheme->getPaletteTexture().getHandle());
+    glBindTexture(GL_TEXTURE_1D, this->palette.getHandle());
 
     for (unsigned int i = 0; i < this->grid_rows; i++)
     {
@@ -153,6 +183,7 @@ void Spectrogram3DVisualizer::render()
 
     this->shader.unbind();
 
+#if 0
     if (!constants.scrolling)
     {
         // TODO: Really +1?
@@ -160,8 +191,22 @@ void Spectrogram3DVisualizer::render()
         y = -(constants.length / 2.0f) + constants.length * y;
         this->drawPlane(y);
     }
-
-    this->render_mutex.unlock();
+#endif
 
     glDisable(GL_DEPTH_TEST);
+}
+
+void Spectrogram3DVisualizer::attachSRC()
+{
+
+    this->quit_thread = false;
+    this->audio_thread = std::thread([this] {
+        this->audioThreadFunc();
+    });
+}
+
+void Spectrogram3DVisualizer::detatchSRC()
+{
+    this->quit_thread = true;
+    this->audio_thread.join();
 }

@@ -7,10 +7,10 @@
 #include <fftw3.h>
 #include "octavebands.h"
 
-const struct
+struct
 {
-    float fft_size = 4096*2;
-    float window_size = 1024;
+    unsigned int fft_size = 4096*2;
+    unsigned int window_size = 1024;
     float window_overlap = 0.5;
     unsigned int n = 3;
     float y_min = -70.0;
@@ -19,57 +19,77 @@ const struct
     float bar_spacing = 0.0025;
 } constants;
 
+const std::string OctavebandsVisualizer::name = "octavebands";
+const std::string title = "Octave Bands Visualizer";
+
+void OctavebandsVisualizer::loadConfig(const IniParser& ini)
+{
+    constants.fft_size = ini.getOptionAsUnsignedInteger("octavebands", "fft_size");
+    constants.window_size = ini.getOptionAsUnsignedInteger("octavebands", "window_size");
+    constants.n = ini.getOptionAsUnsignedInteger("octavebands", "n");
+}
+
 OctavebandsVisualizer::OctavebandsVisualizer()
     :
     Visualizer(),
-    stft(
-        this->src,
-        constants.fft_size,
-        constants.window_size,
-        constants.window_overlap,
-        STFT::Window::HAMMING
-    ),
-    bands_analyzer(this->stft, generateOctaveBands(constants.n), BandWeighting::Z),
-    bars(this->bands_analyzer.getBands().size()),
-    shader("octavebands")
+    bars(generateOctaveBands(constants.n).size()), // TODO: meh..
+    shader("octavebands"),
+    palette{16, {
+        {0.0, {1.0, 0.0, 0.0}},
+        {0.5, {1.0, 0.0, 1.0}},
+        {0.6, {1.0, 1.0, 1.0}},
+        {1.0, {1.0, 1.0, 1.0}},
+    }}
 {
     for (Bar& bar: this->bars)
     {
         bar.height = constants.y_min;
         bar.tick_height = constants.y_min;
     }
-
-    this->startThread();
 }
 
 OctavebandsVisualizer::~OctavebandsVisualizer()
+{}
+
+const std::string& OctavebandsVisualizer::getName() const
 {
-    this->stopThread();
+    return this->name;
 }
 
-const char* OctavebandsVisualizer::getTitle()
+const std::string& OctavebandsVisualizer::getTitle() const
 {
-    return "Octavebands Visualizer";
+    return title;
 }
 
 void OctavebandsVisualizer::audioThreadFunc()
 {
+    SimpleRecordClient src(10 * 1000, "pulseviz", "octavebands");
+    STFT stft(
+        src,
+        constants.fft_size,
+        constants.window_size,
+        constants.window_overlap,
+        STFT::Window::HAMMING
+    );
+    BandsAnalyzer bands_analyzer(stft, generateOctaveBands(constants.n), BandWeighting::Z);
+
     while (!this->quit_thread)
     {
-        this->bands_analyzer.tick();
+        bands_analyzer.tick();
         this->render_mutex.lock();
         unsigned int i = 0;
         for (Bar &bar: this->bars)
         {
-            bar.height = STFT::convertToDecibel(this->bands_analyzer.getBands()[i].magnitude);
+            bar.height = STFT::convertToDecibel(bands_analyzer.getBands()[i].magnitude);
             i += 1;
         }
         this->render_mutex.unlock();
     }
 }
 
-void OctavebandsVisualizer::onFramebuffersizeChanged(unsigned int /* width */, unsigned int /* height */)
+void OctavebandsVisualizer::resize(int width, int height)
 {
+    glViewport(0, 0, width, height);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glMatrixMode(GL_PROJECTION);
@@ -79,7 +99,9 @@ void OctavebandsVisualizer::onFramebuffersizeChanged(unsigned int /* width */, u
 
 void OctavebandsVisualizer::updateTicks()
 {
-    auto duration = this->durationSinceLastUpdate();
+    // TODO: Initialize last_render_tp with something useful!
+    auto duration = std::chrono::steady_clock::now() - this->last_render_tp;
+    this->last_render_tp = std::chrono::steady_clock::now();
 
     for (Bar &bar: this->bars)
     {
@@ -89,7 +111,7 @@ void OctavebandsVisualizer::updateTicks()
     }
 }
 
-void OctavebandsVisualizer::render()
+void OctavebandsVisualizer::draw()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -111,7 +133,7 @@ void OctavebandsVisualizer::render()
 
     glActiveTexture(GL_TEXTURE0 + 0);
     glUniform1i(this->shader.getUniformLocation("palette"), 0);
-    this->colorscheme->getPaletteTexture().bind();
+    this->palette.bind();
 
     unsigned int i = 0;
     for (Bar &bar: this->bars)
@@ -140,7 +162,7 @@ void OctavebandsVisualizer::render()
 
         glLineWidth(2.0);
         glBegin(GL_LINES);
-        auto& bg_color = this->colorscheme->getBackgroundColor();
+        auto bg_color = PaletteColor(0.0f, 0.0f, 0.0f); // TODO: Remove!
         glColor3f(1.0f - bg_color.r, 1.0f - bg_color.g, 1.0f - bg_color.b);
         glVertex2f(x_min, bar.tick_height);
         glVertex2f(x_max, bar.tick_height);
@@ -150,4 +172,19 @@ void OctavebandsVisualizer::render()
     }
 
     this->render_mutex.unlock();
+}
+
+void OctavebandsVisualizer::attachSRC()
+{
+
+    this->quit_thread = false;
+    this->audio_thread = std::thread([this] {
+        this->audioThreadFunc();
+    });
+}
+
+void OctavebandsVisualizer::detatchSRC()
+{
+    this->quit_thread = true;
+    this->audio_thread.join();
 }

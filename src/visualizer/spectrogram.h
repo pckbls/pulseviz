@@ -4,25 +4,40 @@
 #include <GL/glew.h>
 #include "../visualizer.h"
 #include "../gfx/shader.h"
+#include "../gfx/palette.h"
+#include "../gfx/ringbuffertexture.h"
 #include "../dsp/stft.h"
-#include "../dsp/spectrogramtexture.h"
 
 class SpectrogramVisualizer : public Visualizer
 {
 public:
+    static void loadConfig(const IniParser& ini);
+    static const std::string name;
+
     SpectrogramVisualizer();
-    ~SpectrogramVisualizer();
-    virtual const char *getTitle();
-    void render();
-    void onFramebuffersizeChanged(unsigned int width, unsigned int height);
+    ~SpectrogramVisualizer() override;
+
+    const std::string& getName() const override;
+    const std::string& getTitle() const override;
+
+    void attachSRC() override;
+    void detatchSRC() override;
+    void draw() override;
+    void resize(int width, int height) override;
 
 protected:
     void audioThreadFunc();
+    bool quit_thread;
+    std::thread audio_thread;
 
-    STFT stft;
-    SpectrogramTexture texture;
-    Shader shader;
+    std::vector<float> row;
+    RingBufferTexture2D texture;
+
+    // TODO: Rename! this should be a row_mutex.
     std::mutex render_mutex; // TODO: Move this to Visualizer base class?
+
+    Shader shader;
+    PaletteTexture palette;
 };
 
 #endif // SPECTROGRAM_H

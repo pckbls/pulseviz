@@ -17,21 +17,33 @@ struct Bar
 class OctavebandsVisualizer : public Visualizer
 {
 public:
+    static void loadConfig(const IniParser& ini);
+    static const std::string name;
+
     OctavebandsVisualizer();
-    ~OctavebandsVisualizer();
-    virtual const char *getTitle();
-    void render();
-    void onFramebuffersizeChanged(unsigned int width, unsigned int);
+    ~OctavebandsVisualizer() override;
+
+    const std::string& getName() const override;
+    const std::string& getTitle() const override;
+
+    void attachSRC() override;
+    void detatchSRC() override;
+    void draw() override;
+    void resize(int width, int height) override;
 
 protected:
     void audioThreadFunc();
-    void updateTicks();
+    bool quit_thread;
+    std::thread audio_thread;
 
-    STFT stft;
-    BandsAnalyzer bands_analyzer;
+    void updateTicks();
+    std::chrono::steady_clock::time_point last_render_tp;
+
     std::vector<Bar> bars;
     std::mutex render_mutex;
+
     Shader shader;
+    PaletteTexture palette;
 };
 
 #endif // SPECTRUM_H

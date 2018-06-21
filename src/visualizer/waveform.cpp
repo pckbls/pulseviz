@@ -8,51 +8,77 @@
 // TODO: Use the same rendering trick as in our spectrum analyzer!
 // That way we could render huge chunks of data
 
+const std::string WaveFormVisualizer::name = "waveform";
+const std::string title = "Waveform Visualizer";
+struct
+{
+    unsigned int chunk_size = 0;
+    unsigned int buffer_size = 0;
+} config;
+
+void WaveFormVisualizer::loadConfig(const IniParser& ini)
+{
+    config.buffer_size = ini.getOptionAsUnsignedInteger("waveform", "buffer_size");
+    config.chunk_size = ini.getOptionAsUnsignedInteger("waveform", "chunk_size");
+}
+
 WaveFormVisualizer::WaveFormVisualizer()
     :
     Visualizer(),
-    sampler(this->src, 8192, 512),
-    shader("waveform")
-{
-    this->startThread();
-}
+    shader("waveform"),
+    palette{16, {
+        {0.0, {1.0, 0.0, 0.0}},
+        {0.5, {1.0, 0.0, 1.0}},
+        {0.6, {1.0, 1.0, 1.0}},
+        {1.0, {1.0, 1.0, 1.0}},
+    }}
+{}
 
 WaveFormVisualizer::~WaveFormVisualizer()
+{}
+
+const std::string& WaveFormVisualizer::getName() const
 {
-    this->stopThread(); // TODO: Unfortunately we have to call this there...
+    return this->name;
 }
 
-const char* WaveFormVisualizer::getTitle()
+const std::string& WaveFormVisualizer::getTitle() const
 {
-    return "Wave Form Visualizer";
+    return title;
 }
 
 void WaveFormVisualizer::audioThreadFunc()
 {
+    SimpleRecordClient src(10 * 1000, "pulseviz", "waveform");
+    Sampler sampler(src, config.buffer_size, config.chunk_size);
+
+    this->samples.resize(sampler.data.size());
+
     while (!this->quit_thread)
     {
-        this->sampler.readChunk();
+        sampler.readChunk();
         this->mutex.lock();
-        this->sampler.appendToBuffer();
+        sampler.appendToBuffer();
+        this->samples = sampler.data;
         this->mutex.unlock();
     }
 }
 
-void WaveFormVisualizer::render()
+void WaveFormVisualizer::draw()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
     glActiveTexture(GL_TEXTURE0 + 0);
     glUniform1i(this->shader.getUniformLocation("palette"), 0);
-    glBindTexture(GL_TEXTURE_1D, this->colorscheme->getPaletteTexture().getHandle());
+    glBindTexture(GL_TEXTURE_1D, this->palette.getHandle());
 
     this->mutex.lock();
     this->shader.bind();
     glLineWidth(2.0);
     glBegin(GL_LINE_STRIP);
     float x = 0.0;
-    for (float& y: this->sampler.data) {
-        x += 1.0 / this->sampler.data.size();
+    for (float& y: this->samples) {
+        x += 1.0 / this->samples.size();
         glColor3f(1.0 - x, 0.0, x);
         glTexCoord2f(0.0, std::abs(y) / 2.0 + 0.3);
         glVertex2f(x, y);
@@ -60,4 +86,19 @@ void WaveFormVisualizer::render()
     glEnd();
     this->shader.unbind();
     this->mutex.unlock();
+}
+
+void WaveFormVisualizer::attachSRC()
+{
+
+    this->quit_thread = false;
+    this->audio_thread = std::thread([this] {
+        this->audioThreadFunc();
+    });
+}
+
+void WaveFormVisualizer::detatchSRC()
+{
+    this->quit_thread = true;
+    this->audio_thread.join();
 }
