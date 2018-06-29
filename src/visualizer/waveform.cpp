@@ -10,11 +10,8 @@
 
 const std::string WaveFormVisualizer::name = "waveform";
 const std::string title = "Waveform Visualizer";
-struct
-{
-    unsigned int chunk_size = 0;
-    unsigned int buffer_size = 0;
-} config;
+
+WaveFormVisualizer::Config WaveFormVisualizer::config;
 
 void WaveFormVisualizer::loadConfig(const IniParser& ini)
 {

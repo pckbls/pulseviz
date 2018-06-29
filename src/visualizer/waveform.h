@@ -9,7 +9,12 @@
 class WaveFormVisualizer : public Visualizer
 {
 public:
+    static struct Config
+    {
+        unsigned int buffer_size = 0;
+    } config;
     static void loadConfig(const IniParser& ini);
+
     static const std::string name;
 
     WaveFormVisualizer();
