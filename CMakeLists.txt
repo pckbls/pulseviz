@@ -15,8 +15,9 @@ find_package(Threads REQUIRED)
 
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE SHADER_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*.glsl)
+file(GLOB_RECURSE SHARED_FILES share/*.*)
 
-add_executable(pulseviz ${SOURCES} ${SHADER_SOURCES})
+add_executable(pulseviz ${SOURCES} ${SHADER_SOURCES} ${SHARED_FILES})
 target_link_libraries(
     pulseviz
     Threads::Threads
