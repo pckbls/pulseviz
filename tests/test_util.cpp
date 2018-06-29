@@ -20,4 +20,9 @@ TEST(UtilTest, getHomeDirectory)
     EXPECT_NO_THROW(util::getHomeDirectory());
 }
 
+TEST(UtilTest, trim)
+{
+    ASSERT_EQ(1, 0);
+}
+
 } // namespace
