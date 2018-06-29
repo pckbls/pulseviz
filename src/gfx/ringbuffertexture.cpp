@@ -5,8 +5,8 @@ RingBufferTexture2D::RingBufferTexture2D(std::size_t rows, std::size_t columns)
     :
     Texture2D(
         Texture::ColorFormat::LUMINANCE,
-        static_cast<int>(columns),
-        static_cast<int>(rows)
+        columns,
+        rows
     ),
     cursor(0),
     columns(columns), rows(rows)
