@@ -16,7 +16,6 @@ WaveFormVisualizer::Config WaveFormVisualizer::config;
 void WaveFormVisualizer::loadConfig(const IniParser& ini)
 {
     config.buffer_size = ini.getOptionAsUnsignedInteger("waveform", "buffer_size");
-    config.chunk_size = ini.getOptionAsUnsignedInteger("waveform", "chunk_size");
 }
 
 WaveFormVisualizer::WaveFormVisualizer()
@@ -47,7 +46,7 @@ const std::string& WaveFormVisualizer::getTitle() const
 void WaveFormVisualizer::audioThreadFunc()
 {
     SimpleRecordClient src(10 * 1000, "pulseviz", "waveform");
-    Sampler sampler(src, config.buffer_size, config.chunk_size);
+    Sampler sampler(src, config.buffer_size, 256);
 
     this->samples.resize(sampler.data.size());
 
