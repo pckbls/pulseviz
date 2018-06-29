@@ -8,6 +8,7 @@ namespace util
 
 std::string dirname(const std::string& path);
 std::string getHomeDirectory();
+bool dir_exists(const std::string& path);
 
 }
 
