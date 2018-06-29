@@ -64,6 +64,20 @@ TEST(IniParserTest, AssignmentWithoutSectionShouldFail)
     FAIL() << "Expected an exception to be thrown.";
 }
 
+TEST(IniParserTest, MultipleAssignmentsShouldOverwriteValue)
+{
+    IniParser parser;
+
+    std::stringstream ss(R"ini(
+        [one]
+        foo = bar
+        foo = baz
+    )ini");
+
+    ASSERT_NO_THROW(parser.parse(ss));
+    ASSERT_EQ(parser.getOption("one", "foo"), "baz");
+}
+
 TEST(IniParserTest, DenyDataAccessAfterFailedParseAttempt)
 {
     IniParser parser;
