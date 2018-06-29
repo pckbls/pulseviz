@@ -4,8 +4,9 @@
 namespace
 {
 
-TEST(util, dirname)
+TEST(UtilTest, dirname)
 {
+    // TODO: Compare results against other implementations
     EXPECT_THROW(util::dirname(""), std::exception); // TODO: Proper exception type!
     EXPECT_THROW(util::dirname("   \t    "), std::exception); // TODO: Proper exception type!
     EXPECT_EQ("/", util::dirname("/foo"));
@@ -14,7 +15,7 @@ TEST(util, dirname)
     EXPECT_EQ("/foo/bar/", util::dirname("/foo/bar/"));
 }
 
-TEST(util, getHomeDirectory)
+TEST(UtilTest, getHomeDirectory)
 {
     EXPECT_NO_THROW(util::getHomeDirectory());
 }

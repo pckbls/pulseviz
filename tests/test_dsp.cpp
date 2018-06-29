@@ -30,7 +30,7 @@ public:
 namespace
 {
 
-TEST(DSP, generateOctaveBandsTest)
+TEST(DSPTest, generateOctaveBandsTest)
 {
     // Reference values taken from:
     // http://www.engineeringtoolbox.com/octave-bands-frequency-limits-d_1602.html
@@ -48,14 +48,14 @@ TEST(DSP, generateOctaveBandsTest)
     }
 }
 
-TEST(DSP, STFT)
+TEST(DSPTest, STFT)
 {
     SRCMock src;
     STFT stft(src, 1024, 512, 0.5, STFT::Window::RECTANGLE);
     EXPECT_EQ(stft.coefficients.size(), 512);
 }
 
-TEST(DSP, BandsAnalyzer)
+TEST(DSPTest, BandsAnalyzer)
 {
     SRCMock src;
     STFTMock stft(src, 4);

@@ -4,7 +4,7 @@
 namespace
 {
 
-TEST(PulseAudio, readSamplesPositive)
+TEST(PulseAudioTest, readSamplesPositive)
 {
     SimpleRecordClient src(10 * 1000, "foo", "bar");
 
@@ -17,7 +17,7 @@ TEST(PulseAudio, readSamplesPositive)
     ASSERT_NO_THROW(src.flush());
 }
 
-TEST(PulseAudio, readSamplesNegative)
+TEST(PulseAudioTest, readSamplesNegative)
 {
     SimpleRecordClient src(10 * 1000, "foo", "bar");
     std::vector<float> data;
