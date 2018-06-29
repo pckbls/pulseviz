@@ -1,43 +1,40 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#pragma once
 
 #include <vector>
-#include <memory>
 #include <GL/glew.h>
 
-// TODO: Move inside class!
-enum class TextureColorFormat
-{
-    RGB,
-    Luminance
-};
-
-// TODO: Move inside class!
-enum class TextureFiltering
-{
-    NEAREST,
-    BILINEAR,
-    TRILINEAR
-};
-
-template<TextureColorFormat T>
 class Texture
 {
 public:
-    Texture();
+    enum class ColorFormat
+    {
+        LUMINANCE,
+        RGB
+    };
+
+    enum class Filtering
+    {
+        NEAREST,
+        BILINEAR,
+        TRILINEAR
+    };
+
+    Texture(ColorFormat color_format);
+    Texture(const Texture&) = delete;
     virtual ~Texture();
-    void bind();
-    void unbind();
-    GLuint getHandle();
-    void setTextureFiltering(TextureFiltering filtering);
+
+    GLuint getHandle() const;
+    void bind() const;
+    void unbind() const;
+    virtual void setFiltering(Filtering filtering) const;
+
+    virtual GLenum getTarget() const = 0;
 
 protected:
-    GLuint getColorFormatAsGLuint();
-    virtual GLuint getTarget() = 0; // TODO: Make this constexpr?
+    GLint internal_format;
+    GLenum format;
+    size_t pixel_size;
 
-    // TODO: Disable the copy constructor then we can use
-    // a unique_ptr instead of a shared_ptr
-    std::shared_ptr<GLuint> shared_handle;
+private:
+    GLuint handle;
 };
-
-#endif // TEXTURE_H

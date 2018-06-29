@@ -1,56 +1,53 @@
 #include "texture1d.h"
 
-template<TextureColorFormat T>
-Texture1D<T>::Texture1D(size_t length)
+Texture1D::Texture1D(Texture::ColorFormat color_format, size_t length)
     :
-    Texture<T>(),
+    Texture(color_format),
     length(length)
 {
     this->bind();
 
-    std::vector<float> texture_data(this->length * 3);
+    // Initially fill the texture with black ink.
+    std::vector<float> texture_data(this->length * this->pixel_size);
     for (float& value: texture_data)
         value = 0.0;
     this->uploadData(texture_data);
+
+    this->unbind();
 }
 
-template<TextureColorFormat T>
-void Texture1D<T>::uploadData(const std::vector<float>& data)
+void Texture1D::uploadData(const std::vector<float>& data)
 {
-    if (data.size() != this->length * 3)
-        throw "Size does not match."; // TODO: Proper exception message!
+    if (data.size() != this->length * this->pixel_size)
+        throw "data vector has the wrong size.";
 
     this->bind();
-
     glTexImage1D(
-        GL_TEXTURE_1D,
+        this->getTarget(),
         0,
-        this->getColorFormatAsGLuint(),
-        this->length,
+        this->internal_format,
+        static_cast<GLsizei>(this->length),
         0,
-        this->getColorFormatAsGLuint(),
+        this->format,
         GL_FLOAT,
         data.data()
     );
+    this->unbind();
 }
 
-template<TextureColorFormat T>
-size_t Texture1D<T>::getLength() const
+void Texture1D::setWrapMode(GLint x)
+{
+    this->bind();
+    glTexParameteri(this->getTarget(), GL_TEXTURE_WRAP_S, x);
+    this->unbind();
+}
+
+size_t Texture1D::getLength() const
 {
     return this->length;
 }
 
-template<TextureColorFormat T>
-void Texture1D<T>::setTextureWrapMode(GLuint x)
-{
-    glTexParameteri(this->getTarget(), GL_TEXTURE_WRAP_S, x);
-}
-
-template<TextureColorFormat T>
-GLuint Texture1D<T>::getTarget()
+GLenum Texture1D::getTarget() const
 {
     return GL_TEXTURE_1D;
 }
-
-template class Texture1D<TextureColorFormat::Luminance>;
-template class Texture1D<TextureColorFormat::RGB>;

@@ -1,20 +1,18 @@
-#ifndef TEXTURE1D_H
-#define TEXTURE1D_H
+#pragma once
 
 #include "texture.h"
 
-template<TextureColorFormat T>
-class Texture1D : public Texture<T>
+class Texture1D : public Texture
 {
 public:
-    Texture1D(size_t length);
-    void uploadData(const std::vector<float>& data);
-    size_t getLength() const;
-    void setTextureWrapMode(GLuint x);
+    Texture1D(ColorFormat color_format, size_t length);
+    Texture1D(const Texture1D&) = delete;
 
-protected:
-    GLuint getTarget() override;
+    size_t getLength() const;
+    void uploadData(const std::vector<float>& data);
+    void setWrapMode(GLint x);
+    GLenum getTarget() const override;
+
+private:
     size_t length;
 };
-
-#endif // TEXTURE1D_H

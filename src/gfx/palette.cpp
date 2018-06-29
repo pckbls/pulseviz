@@ -11,11 +11,11 @@ PaletteColor::PaletteColor(float r, float g, float b)
 {}
 
 PaletteTexture::PaletteTexture(size_t width, ColorVector colors):
-    Texture1D(width)
+    Texture1D(Texture::ColorFormat::RGB, width)
 {
     this->bind();
-    this->setTextureFiltering(TextureFiltering::BILINEAR);
-    this->setTextureWrapMode(GL_CLAMP_TO_EDGE);
+    this->setFiltering(Texture::Filtering::BILINEAR);
+    this->setWrapMode(GL_CLAMP_TO_EDGE);
 
     // Save the current viewport state.
     GLint viewport[4];
@@ -37,7 +37,7 @@ PaletteTexture::PaletteTexture(size_t width, ColorVector colors):
 
 void PaletteTexture::render(ColorVector &colors)
 {
-    glViewport(0, 0, this->length, 1);
+    glViewport(0, 0, this->getLength(), 1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glMatrixMode(GL_PROJECTION);

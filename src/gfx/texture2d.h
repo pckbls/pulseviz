@@ -1,25 +1,26 @@
-#ifndef TEXTURE2D_H
-#define TEXTURE2D_H
+#pragma once
 
 #include "texture.h"
 
-// TODO: Make most of the methods static!
-
-template<TextureColorFormat T>
-class Texture2D : public Texture<T>
+class Texture2D : public Texture
 {
 public:
-    Texture2D(size_t width, size_t height);
-    void uploadData(const std::vector<float>& data);
+    Texture2D(ColorFormat color_format, size_t width, size_t height);
+    Texture2D(const Texture2D&) = delete;
+
     size_t getWidth() const;
     size_t getHeight() const;
-    void subImage(unsigned int x, unsigned int y, size_t width, size_t height, std::vector<float>& data);
-    void setTextureFiltering(TextureFiltering filtering); // TODO: Move to Texture class
-    void setTextureWrapMode(GLuint x, GLuint y);
 
-protected:
-    GLuint getTarget() override;
+    void uploadData(const std::vector<float>& data);
+    void subImage(int x, int y,
+                  int width, int height,
+                  const std::vector<float>& data);
+
+    virtual void setFiltering(Texture::Filtering filtering) const override;
+    void setWrapMode(GLint x, GLint y);
+
+    GLenum getTarget() const override;
+
+private:
     size_t width, height;
 };
-
-#endif // TEXTURE2D_H

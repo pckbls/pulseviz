@@ -14,7 +14,7 @@ struct PaletteColor
 
 // TODO: Use typedef oder alias oder was auch immer für den std::vector<...> kram unten.
 
-class PaletteTexture : public Texture1D<TextureColorFormat::RGB>
+class PaletteTexture : public Texture1D
 {
     // TODO: Proper naming! (Or delete)
     using ColorVector = std::vector<std::pair<float, PaletteColor>>;

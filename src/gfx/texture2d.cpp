@@ -1,87 +1,85 @@
 #include "texture2d.h"
 #include <iostream>
 
-template<TextureColorFormat T>
-Texture2D<T>::Texture2D(size_t width, size_t height)
+Texture2D::Texture2D(ColorFormat color_format, size_t width, size_t height)
     :
-    Texture<T>(),
+    Texture(color_format),
     width(width), height(height)
-{}
-
-template<TextureColorFormat T>
-void Texture2D<T>::uploadData(const std::vector<float>& data)
 {
-    if (data.size() != this->width * this->height * 1)
-        throw "Size does not match."; // TODO: Proper exception message!
-
-    this->bind();
-
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        this->getColorFormatAsGLuint(),
-        this->width,
-        this->height,
-        0,
-        this->getColorFormatAsGLuint(),
-        GL_FLOAT,
-        data.data()
-    );
+    // Initially fill the texture with black ink.
+    std::vector<float> texture_data(this->width * this->height * this->pixel_size);
+    for (float& value: texture_data)
+        value = 0.0;
+    this->uploadData(texture_data);
 }
 
-template<TextureColorFormat T>
-size_t Texture2D<T>::getWidth() const
+size_t Texture2D::getWidth() const
 {
     return this->width;
 }
 
-template<TextureColorFormat T>
-size_t Texture2D<T>::getHeight() const
+size_t Texture2D::getHeight() const
 {
     return this->height;
 }
 
-template<TextureColorFormat T>
-void Texture2D<T>::subImage(unsigned int x, unsigned int y,
-                            size_t width, size_t height,
-                            std::vector<float>& data)
+void Texture2D::uploadData(const std::vector<float>& data)
 {
+    if (data.size() != this->width * this->height * this->pixel_size)
+        throw "data vector has the wrong size.";
+
+    this->bind();
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        this->internal_format,
+        static_cast<GLsizei>(this->width),
+        static_cast<GLsizei>(this->height),
+        0,
+        this->format,
+        GL_FLOAT,
+        data.data()
+    );
+    this->unbind();
+}
+
+void Texture2D::subImage(int x, int y, int width, int height, const std::vector<float>& data)
+{
+    // TODO: Check size of data!
+
+    this->bind();
     glTexSubImage2D(
         GL_TEXTURE_2D,
         0,
         x, y,
         width, height,
-        this->getColorFormatAsGLuint(),
+        this->format,
         GL_FLOAT,
-        &data
+        data.data()
     );
+    this->unbind();
 }
 
-template<TextureColorFormat T>
-void Texture2D<T>::setTextureFiltering(TextureFiltering filtering)
+void Texture2D::setFiltering(Texture::Filtering filtering) const
 {
-    if ((filtering == TextureFiltering::TRILINEAR)
+    if ((filtering == Texture::Filtering::TRILINEAR)
         && (this->width % 2 != 0 || this->height % 2 != 0))
     {
-        std::cerr << this->width << " " << this->height << std::endl;
         throw "Mipmap generation requires both texture width and height to be multiples of 2";
     }
 
-    Texture<T>::setTextureFiltering(filtering);
+    Texture::setFiltering(filtering);
 }
 
-template<TextureColorFormat T>
-void Texture2D<T>::setTextureWrapMode(GLuint x, GLuint y)
+void Texture2D::setWrapMode(GLint x, GLint y)
 {
-    glTexParameteri(this->getTarget(), GL_TEXTURE_WRAP_S, x);
-    glTexParameteri(this->getTarget(), GL_TEXTURE_WRAP_T, y);
+    this->bind();
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, x);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, y);
+    this->unbind();
 }
 
-template<TextureColorFormat T>
-GLuint Texture2D<T>::getTarget()
+GLenum Texture2D::getTarget() const
 {
     return GL_TEXTURE_2D;
 }
-
-template class Texture2D<TextureColorFormat::Luminance>;
-template class Texture2D<TextureColorFormat::RGB>;

@@ -3,20 +3,19 @@
 
 #include <memory>
 #include <GL/glew.h>
-#include "texture1d.h"
+#include "texture.h"
 
-// TODO: Rename to FBO1D?
 class FBO
 {
 public:
-    FBO(Texture1D<TextureColorFormat::RGB> &texture);
+    FBO(Texture& texture);
     ~FBO();
     void bind();
     void unbind();
 
 protected:
     GLuint handle;
-    Texture1D<TextureColorFormat::RGB>& texture;
+    Texture& texture;
 };
 
 #endif // FBO_H

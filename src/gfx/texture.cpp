@@ -1,80 +1,71 @@
 #include "texture.h"
-#include <iostream>
 
-template<TextureColorFormat T>
-Texture<T>::Texture()
+Texture::Texture(Texture::ColorFormat color_format)
     :
-    shared_handle(new GLuint(0))
+    handle(0)
 {
-    glGenTextures(1, this->shared_handle.get());
-}
-
-template<TextureColorFormat T>
-Texture<T>::~Texture()
-{
-    if (this->shared_handle.use_count() > 1)
-        return;
-
-    glDeleteTextures(1, this->shared_handle.get());
-}
-
-template<TextureColorFormat T>
-GLuint Texture<T>::getHandle()
-{
-    return *this->shared_handle;
-}
-
-template<TextureColorFormat T>
-void Texture<T>::setTextureFiltering(TextureFiltering filtering)
-{
-    if (filtering == TextureFiltering::NEAREST)
+    switch (color_format)
     {
-        glTexParameteri(this->getTarget(), GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(this->getTarget(), GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        case ColorFormat::LUMINANCE:
+            this->internal_format = GL_LUMINANCE;
+            this->format = GL_LUMINANCE;
+            this->pixel_size = 1;
+            break;
+
+        case ColorFormat::RGB:
+            this->internal_format = GL_RGB;
+            this->format = GL_RGB;
+            this->pixel_size = 3;
+            break;
     }
-    else if (filtering == TextureFiltering::BILINEAR)
-    {
-        glTexParameteri(this->getTarget(), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(this->getTarget(), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    }
-    else if (filtering == TextureFiltering::TRILINEAR)
-    {
-        this->bind();
-        glGenerateMipmap(this->getTarget());
 
-        glTexParameteri(this->getTarget(), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(this->getTarget(), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(this->getTarget(), GL_GENERATE_MIPMAP, GL_TRUE); // TODO: Legacy, remove!
-    }
-    else
-        throw "Unknown filtering type";
+    glGenTextures(1, &this->handle);
 }
 
-template<>
-GLuint Texture<TextureColorFormat::Luminance>::getColorFormatAsGLuint()
+Texture::~Texture()
 {
-    return GL_LUMINANCE;
+    glDeleteTextures(1, &this->handle);
 }
 
-template<>
-GLuint Texture<TextureColorFormat::RGB>::getColorFormatAsGLuint()
+void Texture::bind() const
 {
-    return GL_RGB;
+    glBindTexture(this->getTarget(), this->handle);
 }
 
-template<TextureColorFormat T>
-void Texture<T>::bind()
-{
-    glBindTexture(this->getTarget(), *this->shared_handle);
-}
-
-template<TextureColorFormat T>
-void Texture<T>::unbind()
+void Texture::unbind() const
 {
     glBindTexture(this->getTarget(), 0);
 }
 
-// TODO: Can we do better than that?!...
-// See: https://bytefreaks.net/programming-2/c/c-undefined-reference-to-templated-class-function
-template class Texture<TextureColorFormat::Luminance>;
-template class Texture<TextureColorFormat::RGB>;
+GLuint Texture::getHandle() const
+{
+    return this->handle;
+}
+
+void Texture::setFiltering(Texture::Filtering filtering) const
+{
+    this->bind();
+    GLenum target = this->getTarget();
+    switch (filtering)
+    {
+        case Filtering::NEAREST:
+            glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            break;
+
+        case Filtering::BILINEAR:
+            glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            break;
+
+        case Filtering::TRILINEAR:
+            this->bind();
+            glGenerateMipmap(this->getTarget());
+
+            glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(target, GL_GENERATE_MIPMAP, GL_TRUE); // TODO: Legacy, remove!
+            break;
+    }
+    this->unbind();
+}

@@ -14,8 +14,6 @@ Window::Window()
 
     glfwMakeContextCurrent(this->window_handle);
 
-    // TODO: Can we actually call this multiple times?
-    // Does this work with multiple windows?
     GLenum err = glewInit();
     if (GLEW_OK != err)
     {
@@ -23,8 +21,6 @@ Window::Window()
         throw "Cannot initialize GLEW";
     }
     std::cout << "OpenGL version supported by this platform: " << glGetString(GL_VERSION) << std::endl;
-
-    // TODO: Check version!
 }
 
 Window::~Window()
