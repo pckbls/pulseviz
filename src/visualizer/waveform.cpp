@@ -79,8 +79,8 @@ void WaveFormVisualizer::draw()
     float x = 0.0;
     for (float& y: this->samples) {
         x += 1.0 / this->samples.size();
-        glColor3f(1.0 - x, 0.0, x);
-        glTexCoord2f(0.0, std::abs(y) / 2.0 + 0.3);
+        glColor3f(1.0f - x, 0.0f, x);
+        glTexCoord2f(0.0f, std::abs(y) / 2.0f + 0.3f);
         glVertex2f(x, y);
     }
     glEnd();
