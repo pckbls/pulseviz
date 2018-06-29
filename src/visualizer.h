@@ -1,39 +1,34 @@
-#ifndef VISUALIZER_H
-#define VISUALIZER_H
+#pragma once
 
+#include <vector>
+#include <map>
 #include <memory>
-#include <atomic>
-#include <mutex>
-#include <thread>
-#include <chrono>
+#include <string>
 #include "pulseaudio.h"
-#include "colorscheme.h"
+#include "iniparser.h"
 
-class VisualizerWindow;
+// TODO: Read: Factory Pattern in C++ - CodeProject
+// https://www.codeproject.com/Articles/363338/Factory-Pattern-in-Cplusplus
 
 class Visualizer
 {
-    friend class VisualizerWindow;
-
 public:
     Visualizer();
+    Visualizer(const Visualizer&) = delete;
     virtual ~Visualizer();
-    virtual const char *getTitle(); // TODO: std::string
-    virtual void render();
-    virtual void onFramebuffersizeChanged(unsigned int width, unsigned int height);
-    virtual void setColorScheme(ColorScheme& colorscheme);
 
-protected:
-    virtual void audioThreadFunc();
-    void startThread();
-    void stopThread();
-    std::chrono::steady_clock::duration durationSinceLastUpdate();
+    // TODO: Remove!
+    virtual const std::string& getName() const = 0;
 
-    SimpleRecordClient src;
-    std::shared_ptr<ColorScheme> colorscheme; // TODO: Why shared_ptr?
-    std::atomic_bool quit_thread;
-    std::thread audio_thread;
-    std::chrono::steady_clock::time_point last_render_tp;
+    virtual void attachSRC();
+    virtual void detatchSRC();
+
+    virtual const std::string& getTitle() const = 0;
+    virtual void draw();
+    virtual void resize(int width, int height);
 };
 
-#endif // VISUALIZER_H
+// TODO: Put those into a name space!
+std::unique_ptr<Visualizer> createVisualizer(const std::string& name);
+void loadConfig(const IniParser& ini); // TODO: Find a better name! This not only initializes the visualizers but also the "factory".
+std::string getNextVisualizerName(const std::string& name);
