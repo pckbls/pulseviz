@@ -77,7 +77,7 @@ void Visualizer::draw()
 
 void Visualizer::resize(int width, int height)
 {
-    // TODO: Remove this?
+    // Set up a parallel projection.
     glViewport(0, 0, width, height);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
