@@ -105,12 +105,12 @@ bool PulseViz::loadConfig()
     }
     catch (IniParserTypeConversionException& e)
     {
-        std::cerr << e.what();
+        std::cerr << e.what() << std::endl;
         return false;
     }
     catch (IniParserDataException& e)
     {
-        std::cerr << e.what();
+        std::cerr << e.what() << std::endl;
         return false;
     }
 
