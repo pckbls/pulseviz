@@ -43,7 +43,7 @@ TEST(DSPTest, generateOctaveBandsTest)
 
     for (size_t i = 0; i < frequencies.size(); i++)
     {
-        float center_frequency = (frequencies[i].first + frequencies[i].second) / 2.0;
+        float center_frequency = (frequencies[i].first + frequencies[i].second) / 2.0f;
         EXPECT_NEAR(center_frequency, reference_center_frequencies[i], 0.1);
     }
 }

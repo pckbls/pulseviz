@@ -28,14 +28,14 @@ std::vector<BandsAnalyzer::FrequencyBin> generateOctaveBands(unsigned int fracti
 {
     std::vector<std::pair<float, float>> result;
 
-    for (float band_number: linspace(-6.0, 4.0, 11.0 * fraction))
+    for (float band_number: linspace(-6.0f, 4.0f, 11 * fraction))
     {
-        float center_frequency = std::pow(10.0, 3.0) * std::pow(2.0, band_number);
+        float center_frequency = std::pow(10.0f, 3.0f) * std::pow(2.0f, band_number);
 
         // Sources:
         // * https://en.wikipedia.org/wiki/Octave_band
         // * http://www.sengpielaudio.com/calculator-octave.htm
-        float fd = std::pow(2.0, 1.0 / (2.0 * fraction));
+        float fd = std::pow(2.0f, 1.0f / (2.0f * fraction));
         std::pair<float, float> frequency_pair(center_frequency / fd, center_frequency * fd);
         result.push_back(frequency_pair);
     }
