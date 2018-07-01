@@ -33,4 +33,13 @@ TEST(UtilTest, linspace)
     ASSERT_FLOAT_EQ(foo.back(), 10.0f);
 }
 
+TEST(UtilTest, clip)
+{
+    ASSERT_FLOAT_EQ(util::clip(0.9f, 1.0f, 2.0f), 1.0f);
+    ASSERT_FLOAT_EQ(util::clip(1.0f, 1.0f, 2.0f), 1.0f);
+    ASSERT_FLOAT_EQ(util::clip(1.5f, 1.0f, 2.0f), 1.5f);
+    ASSERT_FLOAT_EQ(util::clip(2.0f, 1.0f, 2.0f), 2.0f);
+    ASSERT_FLOAT_EQ(util::clip(2.1f, 1.0f, 2.0f), 2.0f);
+}
+
 } // namespace
