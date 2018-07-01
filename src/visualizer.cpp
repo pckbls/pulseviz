@@ -6,22 +6,10 @@
 #include "visualizer/spectrogram.h"
 #include "visualizer/spectrogram3d.h"
 
-// Names cannot be directly inserted into the vector at this point
-// since the strings might be uninitialized [...]
-static std::vector<std::string> visualizer_order;
-
 static std::map<std::string, std::unique_ptr<VisualizerFactory>> factories;
 
 void loadConfig(const IniParser& ini)
 {
-    // [...] instead we do this here.
-    visualizer_order.push_back(DummyVisualizerNew::name);
-    visualizer_order.push_back(WaveFormVisualizer::name);
-    visualizer_order.push_back(SpectrumVisualizer::name);
-    visualizer_order.push_back(OctavebandsVisualizer::name);
-    visualizer_order.push_back(SpectrogramVisualizer::name);
-    visualizer_order.push_back(Spectrogram3DVisualizer::name);
-
     factories[DummyVisualizerNew::name] = std::unique_ptr<VisualizerFactory>(new DummyVisualizerFactory());
     factories[WaveFormVisualizer::name] = std::unique_ptr<VisualizerFactory>(new WaveFormVisualizerFactory(ini));
     factories[SpectrumVisualizer::name] = std::unique_ptr<VisualizerFactory>(new SpectrumVisualizerFactory(ini));
@@ -32,15 +20,15 @@ void loadConfig(const IniParser& ini)
 
 std::string getNextVisualizerName(const std::string& name)
 {
-    for (auto it = visualizer_order.begin(); it != visualizer_order.end(); it++)
+    for (auto it = factories.begin(); it != factories.end(); it++)
     {
-        if (name == *it)
+        if (name == it->first)
         {
             it++;
-            if (it == visualizer_order.end())
-                it = visualizer_order.begin();
+            if (it == factories.end())
+                it = factories.begin();
 
-            return *it;
+            return it->first;
         }
     }
 
