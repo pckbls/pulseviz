@@ -1,6 +1,6 @@
 # pulseviz
 
-... is going to be a light-weight configurable OpenGL-accelerated audio visualizer for PulseAudio written in C++11. It is supposed to supersede my older [pulseviz.py](https://gitlab.com/pckbls/pulseviz.py) Python project as it turned out, Python might be a bit too slow for this kind of application.
+... is going to be a light-weight configurable OpenGL-accelerated audio visualizer for PulseAudio written in C++11. It is supposed to supersede my older [pulseviz.py](https://github.com/pckbls/pulseviz.py) Python project as it turned out, Python might be a bit too slow for this kind of application.
 
 ![3D Spectrogram](img/spectrogram3d.png)
 
