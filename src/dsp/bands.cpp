@@ -2,33 +2,13 @@
 #include <math.h>
 #include <iostream>
 #include "bands.h"
-
-// See: https://stackoverflow.com/a/11747023
-template<typename T>
-static std::vector<T> linspace(T start, T stop, unsigned int n)
-{
-    std::vector<T> result;
-    float step = (stop - start) / (n - 1);
-
-    while (start <= stop)
-    {
-        result.push_back(start);
-        start += step;
-    }
-
-    return result;
-}
-
-static float clip(float n, float lower, float upper)
-{
-    return std::max(lower, std::min(n, upper));
-}
+#include "../util.h"
 
 std::vector<BandsAnalyzer::FrequencyBin> generateOctaveBands(unsigned int fraction)
 {
     std::vector<std::pair<float, float>> result;
 
-    for (float band_number: linspace(-6.0f, 4.0f, 11 * fraction))
+    for (float band_number: util::linspace(-6.0f, 4.0f, 11 * fraction))
     {
         float center_frequency = std::pow(10.0f, 3.0f) * std::pow(2.0f, band_number);
 
@@ -59,8 +39,8 @@ BandsAnalyzer::BandsAnalyzer(STFT &stft, std::vector<FrequencyBin> frequency_bin
         band.frequencies.upper = bin.second;
         band.frequencies.center = (band.frequencies.upper + band.frequencies.lower) / 2.0;
 
-        band.indices.lower = clip(std::ceil(band.frequencies.lower * k), 0, max_upper_index);
-        band.indices.upper = clip(std::ceil(band.frequencies.upper * k), 0, max_upper_index);
+        band.indices.lower = util::clip(std::ceil(band.frequencies.lower * k), 0, max_upper_index);
+        band.indices.upper = util::clip(std::ceil(band.frequencies.upper * k), 0, max_upper_index);
 
         switch (band_weighting)
         {

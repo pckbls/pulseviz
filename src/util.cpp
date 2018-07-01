@@ -21,3 +21,8 @@ bool util::dir_exists(const std::string& path)
     struct stat sb;
     return stat(path.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode);
 }
+
+float util::clip(float n, float lower, float upper)
+{
+    return std::max(lower, std::min(n, upper));
+}
