@@ -25,4 +25,12 @@ TEST(UtilTest, trim)
     ASSERT_EQ(1, 0);
 }
 
+TEST(UtilTest, linspace)
+{
+    auto foo = util::linspace(0.0f, 10.0f, 50);
+    ASSERT_EQ(foo.size(), 50);
+    ASSERT_FLOAT_EQ(foo.front(), 0.0f);
+    ASSERT_FLOAT_EQ(foo.back(), 10.0f);
+}
+
 } // namespace
