@@ -28,8 +28,8 @@ BandsAnalyzer::BandsAnalyzer(STFT &stft, std::vector<FrequencyBin> frequency_bin
     stft(stft)
 {
     const std::vector<float> fft_frequencies = stft.getFrequencies();
-    float k = (float)this->stft.sampler.data.size() / (float)this->stft.sampler.src.getSampleRate();
-    unsigned int max_upper_index = fft_frequencies.size() - 1;
+    float k = static_cast<float>(this->stft.sampler.data.size()) / static_cast<float>(this->stft.sampler.src.getSampleRate());
+    float max_upper_index = static_cast<float>(fft_frequencies.size()) - 1.0f;
 
     for (FrequencyBin& bin: frequency_bins)
     {
@@ -37,15 +37,14 @@ BandsAnalyzer::BandsAnalyzer(STFT &stft, std::vector<FrequencyBin> frequency_bin
 
         band.frequencies.lower = bin.first;
         band.frequencies.upper = bin.second;
-        band.frequencies.center = (band.frequencies.upper + band.frequencies.lower) / 2.0;
+        band.frequencies.center = (band.frequencies.upper + band.frequencies.lower) / 2.0f;
 
-        band.indices.lower = util::clip(std::ceil(band.frequencies.lower * k), 0, max_upper_index);
-        band.indices.upper = util::clip(std::ceil(band.frequencies.upper * k), 0, max_upper_index);
+        band.indices.lower = static_cast<unsigned int>(util::clip(std::ceil(band.frequencies.lower * k), 0.0f, max_upper_index));
+        band.indices.upper = static_cast<unsigned int>(util::clip(std::ceil(band.frequencies.upper * k), 0.0f, max_upper_index));
 
         switch (band_weighting)
         {
             case BandWeighting::Z: band.weight = 1.0; break;
-            default: throw "Unknown band weighting type"; break;
         }
 
         this->bands.push_back(band);
