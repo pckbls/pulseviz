@@ -210,3 +210,13 @@ void Spectrogram3DVisualizer::detatchSRC()
     this->quit_thread = true;
     this->audio_thread.join();
 }
+
+Spectrogram3DVisualizerFactory::Spectrogram3DVisualizerFactory(const IniParser& ini)
+{
+    Spectrogram3DVisualizer::loadConfig(ini);
+}
+
+std::unique_ptr<Visualizer> Spectrogram3DVisualizerFactory::create() const
+{
+    return std::unique_ptr<Visualizer>(new Spectrogram3DVisualizer());
+}

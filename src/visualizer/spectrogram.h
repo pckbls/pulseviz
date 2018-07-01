@@ -40,4 +40,11 @@ protected:
     PaletteTexture palette;
 };
 
+class SpectrogramVisualizerFactory : public VisualizerFactory
+{
+public:
+    SpectrogramVisualizerFactory(const IniParser& ini);
+    std::unique_ptr<Visualizer> create() const;
+};
+
 #endif // SPECTROGRAM_H

@@ -13,3 +13,8 @@ public:
 
     void draw();
 };
+
+class DummyVisualizerFactory : public VisualizerFactory
+{
+    std::unique_ptr<Visualizer> create() const;
+};

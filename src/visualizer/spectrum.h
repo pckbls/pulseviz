@@ -36,4 +36,11 @@ protected:
     PaletteTexture palette;
 };
 
+class SpectrumVisualizerFactory : public VisualizerFactory
+{
+public:
+    SpectrumVisualizerFactory(const IniParser& ini);
+    std::unique_ptr<Visualizer> create() const;
+};
+
 #endif // SPECTRUM_H

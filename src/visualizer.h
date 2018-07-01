@@ -28,6 +28,14 @@ public:
     virtual void resize(int width, int height);
 };
 
+class VisualizerFactory
+{
+public:
+    VisualizerFactory();
+    virtual ~VisualizerFactory();
+    virtual std::unique_ptr<Visualizer> create() const = 0;
+};
+
 // TODO: Put those into a name space!
 std::unique_ptr<Visualizer> createVisualizer(const std::string& name);
 void loadConfig(const IniParser& ini); // TODO: Find a better name! This not only initializes the visualizers but also the "factory".

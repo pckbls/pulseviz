@@ -26,3 +26,8 @@ void DummyVisualizerNew::draw()
     glVertex2f(0.5, 1.0);
     glEnd();
 }
+
+std::unique_ptr<Visualizer> DummyVisualizerFactory::create() const
+{
+    return std::unique_ptr<Visualizer>(new DummyVisualizerNew());
+}

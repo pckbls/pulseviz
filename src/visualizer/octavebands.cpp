@@ -188,3 +188,13 @@ void OctavebandsVisualizer::detatchSRC()
     this->quit_thread = true;
     this->audio_thread.join();
 }
+
+OctavebandsVisualizerFactory::OctavebandsVisualizerFactory(const IniParser& ini)
+{
+    OctavebandsVisualizer::loadConfig(ini);
+}
+
+std::unique_ptr<Visualizer> OctavebandsVisualizerFactory::create() const
+{
+    return std::unique_ptr<Visualizer>(new OctavebandsVisualizer());
+}

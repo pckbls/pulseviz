@@ -39,4 +39,11 @@ protected:
     PaletteTexture palette;
 };
 
+class WaveFormVisualizerFactory : public VisualizerFactory
+{
+public:
+    WaveFormVisualizerFactory(const IniParser& ini);
+    std::unique_ptr<Visualizer> create() const;
+};
+
 #endif // WAVEFORM_H

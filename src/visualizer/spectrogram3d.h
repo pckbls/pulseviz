@@ -55,4 +55,11 @@ protected:
     } rotation;
 };
 
+class Spectrogram3DVisualizerFactory : public VisualizerFactory
+{
+public:
+    Spectrogram3DVisualizerFactory(const IniParser& ini);
+    std::unique_ptr<Visualizer> create() const;
+};
+
 #endif // SPECTROGRAM_3D_H

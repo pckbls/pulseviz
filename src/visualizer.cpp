@@ -10,6 +10,8 @@
 // since the strings might be uninitialized [...]
 static std::vector<std::string> visualizer_order;
 
+static std::map<std::string, std::unique_ptr<VisualizerFactory>> factories;
+
 void loadConfig(const IniParser& ini)
 {
     // [...] instead we do this here.
@@ -20,11 +22,12 @@ void loadConfig(const IniParser& ini)
     visualizer_order.push_back(SpectrogramVisualizer::name);
     visualizer_order.push_back(Spectrogram3DVisualizer::name);
 
-    WaveFormVisualizer::loadConfig(ini);
-    SpectrumVisualizer::loadConfig(ini);
-    OctavebandsVisualizer::loadConfig(ini);
-    SpectrogramVisualizer::loadConfig(ini);
-    Spectrogram3DVisualizer::loadConfig(ini);
+    factories[DummyVisualizerNew::name] = std::unique_ptr<VisualizerFactory>(new DummyVisualizerFactory());
+    factories[WaveFormVisualizer::name] = std::unique_ptr<VisualizerFactory>(new WaveFormVisualizerFactory(ini));
+    factories[SpectrumVisualizer::name] = std::unique_ptr<VisualizerFactory>(new SpectrumVisualizerFactory(ini));
+    factories[OctavebandsVisualizer::name] = std::unique_ptr<VisualizerFactory>(new OctavebandsVisualizerFactory(ini));
+    factories[SpectrogramVisualizer::name] = std::unique_ptr<VisualizerFactory>(new SpectrogramVisualizerFactory(ini));
+    factories[Spectrogram3DVisualizer::name] = std::unique_ptr<VisualizerFactory>(new Spectrogram3DVisualizerFactory(ini));
 }
 
 std::string getNextVisualizerName(const std::string& name)
@@ -46,24 +49,7 @@ std::string getNextVisualizerName(const std::string& name)
 
 std::unique_ptr<Visualizer> createVisualizer(const std::string& name)
 {
-    Visualizer* result = nullptr;
-
-    if (name == DummyVisualizerNew::name)
-        result = new DummyVisualizerNew();
-    else if (name == WaveFormVisualizer::name)
-        result = new WaveFormVisualizer();
-    else if (name == SpectrumVisualizer::name)
-        result = new SpectrumVisualizer();
-    else if (name == OctavebandsVisualizer::name)
-        result = new OctavebandsVisualizer();
-    else if (name == SpectrogramVisualizer::name)
-        result = new SpectrogramVisualizer();
-    else if (name == Spectrogram3DVisualizer::name)
-        result = new Spectrogram3DVisualizer();
-    else
-        throw "This should never happen at all.";
-
-    return std::unique_ptr<Visualizer>(result);
+    return factories.at(name)->create();
 }
 
 Visualizer::Visualizer()
@@ -91,3 +77,6 @@ void Visualizer::attachSRC()
 
 void Visualizer::detatchSRC()
 {}
+
+VisualizerFactory::VisualizerFactory() {}
+VisualizerFactory::~VisualizerFactory() {}

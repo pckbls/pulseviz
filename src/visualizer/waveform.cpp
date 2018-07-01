@@ -98,3 +98,13 @@ void WaveFormVisualizer::detatchSRC()
     this->quit_thread = true;
     this->audio_thread.join();
 }
+
+WaveFormVisualizerFactory::WaveFormVisualizerFactory(const IniParser& ini)
+{
+    WaveFormVisualizer::loadConfig(ini);
+}
+
+std::unique_ptr<Visualizer> WaveFormVisualizerFactory::create() const
+{
+    return std::unique_ptr<Visualizer>(new WaveFormVisualizer());
+}

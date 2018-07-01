@@ -46,4 +46,11 @@ protected:
     PaletteTexture palette;
 };
 
+class OctavebandsVisualizerFactory : public VisualizerFactory
+{
+public:
+    OctavebandsVisualizerFactory(const IniParser& ini);
+    std::unique_ptr<Visualizer> create() const;
+};
+
 #endif // SPECTRUM_H

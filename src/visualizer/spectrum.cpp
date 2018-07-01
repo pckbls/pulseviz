@@ -138,3 +138,13 @@ void SpectrumVisualizer::detatchSRC()
     this->quit_thread = true;
     this->audio_thread.join();
 }
+
+SpectrumVisualizerFactory::SpectrumVisualizerFactory(const IniParser& ini)
+{
+    SpectrumVisualizer::loadConfig(ini);
+}
+
+std::unique_ptr<Visualizer> SpectrumVisualizerFactory::create() const
+{
+    return std::unique_ptr<Visualizer>(new SpectrumVisualizer());
+}
