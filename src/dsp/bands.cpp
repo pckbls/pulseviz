@@ -4,10 +4,10 @@
 #include "bands.h"
 
 // See: https://stackoverflow.com/a/11747023
-// TODO: Use templates
-static std::vector<float> linspace(float start, float stop, unsigned int n)
+template<typename T>
+static std::vector<T> linspace(T start, T stop, unsigned int n)
 {
-    std::vector<float> result;
+    std::vector<T> result;
     float step = (stop - start) / (n - 1);
 
     while (start <= stop)
