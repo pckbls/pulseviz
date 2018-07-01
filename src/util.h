@@ -21,7 +21,11 @@ std::vector<T> linspace(T start, T stop, std::size_t n)
     return result;
 }
 
-float clip(float n, float lower, float upper);
+template<typename T>
+T clip(T n, T lower, T upper)
+{
+    return std::max(lower, std::min(n, upper));
+}
 
 }
 
