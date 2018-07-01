@@ -10,6 +10,7 @@ static std::map<std::string, std::unique_ptr<VisualizerFactory>> factories;
 
 void loadConfig(const IniParser& ini)
 {
+    // TODO: The order is no longer correct...
     factories[DummyVisualizerNew::name] = std::unique_ptr<VisualizerFactory>(new DummyVisualizerFactory());
     factories[WaveFormVisualizer::name] = std::unique_ptr<VisualizerFactory>(new WaveFormVisualizerFactory(ini));
     factories[SpectrumVisualizer::name] = std::unique_ptr<VisualizerFactory>(new SpectrumVisualizerFactory(ini));
