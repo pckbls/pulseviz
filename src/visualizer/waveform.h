@@ -18,7 +18,6 @@ private:
     bool quit_thread;
     std::thread audio_thread;
 
-    size_t buffer_size;
     std::vector<float> samples;
     std::mutex mutex;
 

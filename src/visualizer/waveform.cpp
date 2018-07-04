@@ -11,7 +11,7 @@
 WaveFormVisualizer::WaveFormVisualizer(size_t buffer_size)
     :
     Visualizer(),
-    buffer_size(buffer_size),
+    samples(buffer_size),
     shader("waveform"),
     palette{16, {
         {0.0, {1.0, 0.0, 0.0}},
@@ -40,9 +40,7 @@ const std::string WaveFormVisualizer::getTitle() const
 void WaveFormVisualizer::audioThreadFunc()
 {
     SimpleRecordClient src(10 * 1000, "pulseviz", "waveform");
-    Sampler sampler(src, this->buffer_size, 256);
-
-    this->samples.resize(sampler.data.size());
+    Sampler sampler(src, this->samples.size(), 256);
 
     while (!this->quit_thread)
     {
