@@ -6,36 +6,37 @@
 #include <fftw3.h>
 #include "spectrum.h"
 
-struct
-{
-    float fft_size = 4096*2;
-    float window_size = 1024;
-    float window_overlap = 0.5;
-    float y_min = -100.0;
-    float y_max = 0.0;
-} constants;
-
-void SpectrumVisualizer::loadConfig(const IniParser& ini)
-{
-    constants.fft_size = ini.getOptionAsUnsignedInteger("spectrum", "fft_size");
-    constants.window_size = ini.getOptionAsUnsignedInteger("spectrum", "window_size");
-}
-
-SpectrumVisualizer::SpectrumVisualizer()
+SpectrumVisualizer::SpectrumVisualizer(const SpectrumVisualizerFactory &factory)
     :
     Visualizer(),
-    spectrum(std::vector<float>(constants.fft_size/2+1)),
+    factory(factory),
+    src(10 * 1000, "pulseviz", "spectrum"),
+    stft(
+        this->src,
+        factory.fft_size,
+        1024,
+        0.5,
+        STFT::Window::HAMMING
+    ),
+    spectrum(stft.coefficients.size()),
     shader("spectrum"),
     palette{16, {
-        {0.0, {1.0, 0.0, 0.0}},
-        {0.5, {1.0, 0.0, 1.0}},
-        {0.6, {1.0, 1.0, 1.0}},
-        {1.0, {1.0, 1.0, 1.0}},
+        {0.0, {0.0, 0.0, 1.0}},
+        {0.75, {1.0, 0.0, 1.0}},
+        {1.0, {1.0, 1.0, 1.0}}
     }}
-{}
+{
+    this->quit_thread = false;
+    this->audio_thread = std::thread([this] {
+        this->audioThreadFunc();
+    });
+}
 
 SpectrumVisualizer::~SpectrumVisualizer()
-{}
+{
+    this->quit_thread = true;
+    this->audio_thread.join();
+}
 
 const std::string SpectrumVisualizer::getTitle() const
 {
@@ -44,18 +45,9 @@ const std::string SpectrumVisualizer::getTitle() const
 
 void SpectrumVisualizer::audioThreadFunc()
 {
-    SimpleRecordClient src(10 * 1000, "pulseviz", "spectrum");
-    STFT stft(
-        src,
-        constants.fft_size,
-        constants.window_size,
-        constants.window_overlap,
-        STFT::Window::HAMMING
-    );
-
     while (!this->quit_thread)
     {
-        stft.slide();
+        this->stft.slide();
 
         this->data_mutex.lock();
         for (unsigned int i = 0; i < this->spectrum.size(); i++)
@@ -71,21 +63,25 @@ void SpectrumVisualizer::resize(int width, int height)
     glLoadIdentity();
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0.0, 1.0, constants.y_min, constants.y_max, -1.0, 1.0);
+    glOrtho(
+        0.0, 1.0,
+        // TODO: Use 0.0, 1.0?
+        static_cast<double>(this->factory.dB_min), static_cast<double>(this->factory.dB_max),
+        -1.0, 1.0
+    );
+}
+
+float SpectrumVisualizer::frequency2xCoordinate(float frequency)
+{
+    // TODO: It is sufficient to calculate those once!
+    float b = log(this->stft.getFrequencies().back() / this->stft.getFrequencies()[1]) / (1.0f - 0.0f);
+    float a = this->stft.getFrequencies().back() / exp(b * 1.0f);
+    return log(frequency / a) / b;
 }
 
 void SpectrumVisualizer::draw()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-
-#if 0
-    glLineWidth(1.0);
-    glBegin(GL_LINES);
-    glColor3f(0.1, 0.1, 0.1);
-    glVertex2f(0.0, 0.0);
-    glVertex2f(1.0, 0.0);
-    glEnd();
-#endif
 
     this->data_mutex.lock();
 
@@ -94,49 +90,36 @@ void SpectrumVisualizer::draw()
     glBindTexture(GL_TEXTURE_1D, this->palette.getHandle());
 
     this->shader.bind();
-    glLineWidth(2.0);
+    glLineWidth(2.0f);
     glBegin(GL_LINE_STRIP);
-    float x = 0.0;
-    unsigned int i = 0;
-    for (float& y: this->spectrum) {
-        // TODO: Scaling can be done in the shader
-        // x = (float)i / (float)this->spectrum.size();
-        //x = 1.0 - (pow(1000.0, 1.0 - ((float)i / (float)this->spectrum.size())) - 1.0) / 999.0;
-        // TODO: log10(0) ?!
-        x = pow(10, 1.0/2.0 * log10((float)i / (float)this->spectrum.size()));
-        float magnitude = (y - constants.y_min) / (constants.y_max - constants.y_min);
-        i += 1;
-        glColor3f(1.0 - x, 0.0, x);
-        glTexCoord2f(magnitude, magnitude);
+
+    for (unsigned int i = 1; i < this->spectrum.size(); i++)
+    {
+        float frequency = this->stft.getFrequencies()[i];
+        float x = this->frequency2xCoordinate(frequency);
+        float y = this->spectrum[i];
+        float normalized_magnitude = (y - this->factory.dB_min) / (this->factory.dB_clip - this->factory.dB_min);
+
+        glTexCoord1f(normalized_magnitude);
         glVertex2f(x, y);
     }
+
     glEnd();
     this->shader.unbind();
 
     this->data_mutex.unlock();
 }
 
-void SpectrumVisualizer::attachSRC()
-{
-
-    this->quit_thread = false;
-    this->audio_thread = std::thread([this] {
-        this->audioThreadFunc();
-    });
-}
-
-void SpectrumVisualizer::detatchSRC()
-{
-    this->quit_thread = true;
-    this->audio_thread.join();
-}
-
 SpectrumVisualizerFactory::SpectrumVisualizerFactory(const IniParser& ini)
 {
-    SpectrumVisualizer::loadConfig(ini);
+    this->dB_min = ini.getOptionAsFloat("general", "dB_min");
+    this->dB_max = ini.getOptionAsFloat("general", "dB_max");
+    this->dB_clip = ini.getOptionAsFloat("general", "dB_clip");
+    this->fft_size = ini.getOptionAsUnsignedInteger("fft", "fft_size");
 }
 
 std::unique_ptr<Visualizer> SpectrumVisualizerFactory::create() const
 {
-    return std::unique_ptr<Visualizer>(new SpectrumVisualizer());
+    auto* visualizer = new SpectrumVisualizer(*this);
+    return std::unique_ptr<Visualizer>(visualizer);
 }

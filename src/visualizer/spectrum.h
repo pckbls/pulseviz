@@ -7,26 +7,28 @@
 #include "../gfx/shader.h"
 #include "../gfx/palette.h"
 
+class SpectrumVisualizerFactory;
+
 class SpectrumVisualizer : public Visualizer
 {
 public:
-    static void loadConfig(const IniParser& ini);
-    static const std::string name;
-
-    SpectrumVisualizer();
+    SpectrumVisualizer(const SpectrumVisualizerFactory& factory);
     ~SpectrumVisualizer() override;
-
     const std::string getTitle() const override;
-
-    void attachSRC() override;
-    void detatchSRC() override;
     void draw() override;
     void resize(int width, int height) override;
 
-protected:
+private:
+    const SpectrumVisualizerFactory& factory;
+
+    float frequency2xCoordinate(float frequency);
+
     void audioThreadFunc();
     bool quit_thread;
     std::thread audio_thread;
+
+    SimpleRecordClient src;
+    STFT stft;
 
     std::vector<float> spectrum;
     std::mutex data_mutex; // TODO: Rename to spectrum_mutex
@@ -37,9 +39,15 @@ protected:
 
 class SpectrumVisualizerFactory : public VisualizerFactory
 {
+    friend class SpectrumVisualizer;
+
 public:
     SpectrumVisualizerFactory(const IniParser& ini);
     std::unique_ptr<Visualizer> create() const;
+
+private:
+    size_t fft_size;
+    float dB_min, dB_max, dB_clip;
 };
 
 #endif // SPECTRUM_H
