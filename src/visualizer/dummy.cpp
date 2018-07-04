@@ -1,13 +1,7 @@
 #include <GL/glew.h>
 #include "dummy.h"
 
-const std::string DummyVisualizerNew::name = "dummy";
 const std::string DummyVisualizerNew::title = "Dummy Visualizer";
-
-const std::string& DummyVisualizerNew::getName() const
-{
-    return this->name;
-}
 
 const std::string& DummyVisualizerNew::getTitle() const
 {

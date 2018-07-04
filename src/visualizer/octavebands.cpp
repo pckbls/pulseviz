@@ -19,7 +19,6 @@ struct
     float bar_spacing = 0.0025;
 } constants;
 
-const std::string OctavebandsVisualizer::name = "octavebands";
 const std::string title = "Octave Bands Visualizer";
 
 void OctavebandsVisualizer::loadConfig(const IniParser& ini)
@@ -50,11 +49,6 @@ OctavebandsVisualizer::OctavebandsVisualizer()
 
 OctavebandsVisualizer::~OctavebandsVisualizer()
 {}
-
-const std::string& OctavebandsVisualizer::getName() const
-{
-    return this->name;
-}
 
 const std::string& OctavebandsVisualizer::getTitle() const
 {

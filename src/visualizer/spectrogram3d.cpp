@@ -51,11 +51,6 @@ Spectrogram3DVisualizer::Spectrogram3DVisualizer()
 Spectrogram3DVisualizer::~Spectrogram3DVisualizer()
 {}
 
-const std::string& Spectrogram3DVisualizer::getName() const
-{
-    return this->name;
-}
-
 const std::string& Spectrogram3DVisualizer::getTitle() const
 {
     return title;

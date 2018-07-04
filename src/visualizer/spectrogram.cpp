@@ -12,7 +12,6 @@ struct
     bool scrolling = true;
 } constants;
 
-const std::string SpectrogramVisualizer::name = "spectrogram";
 const std::string title = "Spectrogram Visualizer";
 
 void SpectrogramVisualizer::loadConfig(const IniParser& ini)
@@ -38,11 +37,6 @@ SpectrogramVisualizer::SpectrogramVisualizer()
 
 SpectrogramVisualizer::~SpectrogramVisualizer()
 {}
-
-const std::string& SpectrogramVisualizer::getName() const
-{
-    return this->name;
-}
 
 const std::string& SpectrogramVisualizer::getTitle() const
 {

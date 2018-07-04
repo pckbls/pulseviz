@@ -18,7 +18,6 @@ public:
     Spectrogram3DVisualizer();
     ~Spectrogram3DVisualizer() override;
 
-    const std::string& getName() const override;
     const std::string& getTitle() const override;
 
     void attachSRC() override;

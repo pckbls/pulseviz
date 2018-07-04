@@ -15,7 +15,6 @@ struct
     float y_max = 0.0;
 } constants;
 
-const std::string SpectrumVisualizer::name = "spectrum";
 const std::string title = "Spectrum Visualizer";
 
 void SpectrumVisualizer::loadConfig(const IniParser& ini)
@@ -39,11 +38,6 @@ SpectrumVisualizer::SpectrumVisualizer()
 
 SpectrumVisualizer::~SpectrumVisualizer()
 {}
-
-const std::string& SpectrumVisualizer::getName() const
-{
-    return this->name;
-}
 
 const std::string& SpectrumVisualizer::getTitle() const
 {

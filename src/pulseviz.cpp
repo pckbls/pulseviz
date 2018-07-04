@@ -8,6 +8,12 @@
 #include "pulseaudio.h"
 #include "util.h"
 #include "visualizer.h"
+#include "visualizer/dummy.h"
+#include "visualizer/waveform.h"
+#include "visualizer/spectrum.h"
+#include "visualizer/octavebands.h"
+#include "visualizer/spectrogram.h"
+#include "visualizer/spectrogram3d.h"
 
 PulseViz::PulseViz(int argc, char** argv)
 {
@@ -101,7 +107,7 @@ bool PulseViz::loadConfig()
     // and make them validate their matching sections.
     try
     {
-        ::loadConfig(ini);
+        this->passConfigToVisualizers(ini);
     }
     catch (IniParserTypeConversionException& e)
     {
@@ -115,6 +121,16 @@ bool PulseViz::loadConfig()
     }
 
     return true;
+}
+
+void PulseViz::passConfigToVisualizers(IniParser& ini)
+{
+    this->visualizer_factories.emplace_back(new DummyVisualizerFactory());
+    this->visualizer_factories.emplace_back(new WaveFormVisualizerFactory(ini));
+    this->visualizer_factories.emplace_back(new SpectrumVisualizerFactory(ini));
+    this->visualizer_factories.emplace_back(new OctavebandsVisualizerFactory(ini));
+    this->visualizer_factories.emplace_back(new SpectrogramVisualizerFactory(ini));
+    this->visualizer_factories.emplace_back(new Spectrogram3DVisualizerFactory(ini));
 }
 
 bool PulseViz::loadShaders()
@@ -182,21 +198,22 @@ bool PulseViz::manageWindows()
 
 void PulseViz::createWindow()
 {
-    std::unique_ptr<VisualizerWindow> window(new VisualizerWindow(*this));
+    std::unique_ptr<VisualizerWindow> window(new VisualizerWindow(*this, this->visualizer_factories));
 
     glfwSetFramebufferSizeCallback(window->getHandle(), PulseViz::onFramebufferSizeChange);
     glfwSetKeyCallback(window->getHandle(), PulseViz::onKey);
 
+    // TODO: Do we need this?
     glfwMakeContextCurrent(window->getHandle());
-    window->attachVisualizer(::createVisualizer("dummy"));
+
+    window->nextVisualizer();
 
     this->windows.push_back(std::move(window)); // TODO: Really std::move?
 }
 
 void PulseViz::nextVisualizer(VisualizerWindow* window)
 {
-    std::string next_visualizer_name = ::getNextVisualizerName(window->getVisualizer().getName());
-    window->attachVisualizer(::createVisualizer(next_visualizer_name));
+    window->nextVisualizer();
 }
 
 void PulseViz::onFramebufferSizeChange(GLFWwindow* window, int width, int height)

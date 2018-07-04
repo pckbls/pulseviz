@@ -8,7 +8,6 @@
 // TODO: Use the same rendering trick as in our spectrum analyzer!
 // That way we could render huge chunks of data
 
-const std::string WaveFormVisualizer::name = "waveform";
 const std::string title = "Waveform Visualizer";
 
 WaveFormVisualizer::Config WaveFormVisualizer::config;
@@ -32,11 +31,6 @@ WaveFormVisualizer::WaveFormVisualizer()
 
 WaveFormVisualizer::~WaveFormVisualizer()
 {}
-
-const std::string& WaveFormVisualizer::getName() const
-{
-    return this->name;
-}
 
 const std::string& WaveFormVisualizer::getTitle() const
 {

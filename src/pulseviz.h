@@ -16,6 +16,8 @@ private:
     void printHelp();
 
     bool loadConfig();
+    void passConfigToVisualizers(IniParser& ini);
+
     bool loadShaders();
     bool manageWindows();
 
@@ -29,6 +31,7 @@ private:
     std::vector<std::string> args;
     std::string binary_path;
     std::vector<std::unique_ptr<VisualizerWindow>> windows; // TODO: Consider using a list?
+    std::vector<std::unique_ptr<VisualizerFactory>> visualizer_factories;
 };
 
 #endif // PULSEVIZ_H
