@@ -51,10 +51,10 @@ Visualizer& VisualizerWindow::getVisualizer()
 
 void VisualizerWindow::nextVisualizer()
 {
+    auto next_visualizer = (*this->visualizer_factories_it)->create();
+    this->attachVisualizer(std::move(next_visualizer));
+
     this->visualizer_factories_it++;
     if (this->visualizer_factories_it == this->visualizer_factories.end())
         this->visualizer_factories_it = this->visualizer_factories.begin();
-
-    auto next_visualizer = (*this->visualizer_factories_it)->create();
-    this->attachVisualizer(std::move(next_visualizer));
 }
