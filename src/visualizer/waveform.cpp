@@ -67,7 +67,8 @@ void WaveFormVisualizer::draw()
     glLineWidth(2.0);
     glBegin(GL_LINE_STRIP);
     float x = 0.0;
-    for (float& y: this->samples) {
+    for (float& y: this->samples)
+    {
         x += 1.0 / this->samples.size();
         glColor3f(1.0f - x, 0.0f, x);
         glTexCoord2f(0.0f, std::abs(y) / 2.0f + 0.3f);
