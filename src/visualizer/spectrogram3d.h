@@ -13,12 +13,11 @@ class Spectrogram3DVisualizer : public Visualizer
 {
 public:
     static void loadConfig(const IniParser& ini);
-    static const std::string name;
 
     Spectrogram3DVisualizer();
     ~Spectrogram3DVisualizer() override;
 
-    const std::string& getTitle() const override;
+    const std::string getTitle() const override;
 
     void attachSRC() override;
     void detatchSRC() override;

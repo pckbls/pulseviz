@@ -16,9 +16,6 @@ const struct
     bool scrolling = true;
 } constants;
 
-const std::string Spectrogram3DVisualizer::name = "spectrogram3d";
-const std::string title = "Spectrogram3D Visualizer";
-
 void Spectrogram3DVisualizer::loadConfig(const IniParser& ini)
 {
     (void)ini;
@@ -51,9 +48,9 @@ Spectrogram3DVisualizer::Spectrogram3DVisualizer()
 Spectrogram3DVisualizer::~Spectrogram3DVisualizer()
 {}
 
-const std::string& Spectrogram3DVisualizer::getTitle() const
+const std::string Spectrogram3DVisualizer::getTitle() const
 {
-    return title;
+    return "Spectrogram3D Visualizer";
 }
 
 void Spectrogram3DVisualizer::audioThreadFunc()

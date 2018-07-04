@@ -20,7 +20,7 @@ public:
     virtual void attachSRC();
     virtual void detatchSRC();
 
-    virtual const std::string& getTitle() const = 0;
+    virtual const std::string getTitle() const = 0;
     virtual void draw();
     virtual void resize(int width, int height);
 };

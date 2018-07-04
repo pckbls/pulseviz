@@ -5,12 +5,8 @@
 class DummyVisualizerNew : public Visualizer
 {
 public:
-    static const std::string name;
-    static const std::string title;
-
-    const std::string& getTitle() const;
-
-    void draw();
+    const std::string getTitle() const override;
+    void draw() override;
 };
 
 class DummyVisualizerFactory : public VisualizerFactory

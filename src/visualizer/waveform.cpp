@@ -8,8 +8,6 @@
 // TODO: Use the same rendering trick as in our spectrum analyzer!
 // That way we could render huge chunks of data
 
-const std::string title = "Waveform Visualizer";
-
 WaveFormVisualizer::Config WaveFormVisualizer::config;
 
 void WaveFormVisualizer::loadConfig(const IniParser& ini)
@@ -32,9 +30,9 @@ WaveFormVisualizer::WaveFormVisualizer()
 WaveFormVisualizer::~WaveFormVisualizer()
 {}
 
-const std::string& WaveFormVisualizer::getTitle() const
+const std::string WaveFormVisualizer::getTitle() const
 {
-    return title;
+    return "Waveform Visualizer";
 }
 
 void WaveFormVisualizer::audioThreadFunc()

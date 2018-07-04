@@ -12,8 +12,6 @@ struct
     bool scrolling = true;
 } constants;
 
-const std::string title = "Spectrogram Visualizer";
-
 void SpectrogramVisualizer::loadConfig(const IniParser& ini)
 {
     constants.scrolling = ini.getOptionAsBool("spectrogram", "scrolling");
@@ -38,9 +36,9 @@ SpectrogramVisualizer::SpectrogramVisualizer()
 SpectrogramVisualizer::~SpectrogramVisualizer()
 {}
 
-const std::string& SpectrogramVisualizer::getTitle() const
+const std::string SpectrogramVisualizer::getTitle() const
 {
-    return title;
+    return "Spectrogram Visualizer";
 }
 
 void SpectrogramVisualizer::audioThreadFunc()

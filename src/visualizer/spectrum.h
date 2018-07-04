@@ -16,7 +16,7 @@ public:
     SpectrumVisualizer();
     ~SpectrumVisualizer() override;
 
-    const std::string& getTitle() const override;
+    const std::string getTitle() const override;
 
     void attachSRC() override;
     void detatchSRC() override;

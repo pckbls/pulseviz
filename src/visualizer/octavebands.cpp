@@ -19,8 +19,6 @@ struct
     float bar_spacing = 0.0025;
 } constants;
 
-const std::string title = "Octave Bands Visualizer";
-
 void OctavebandsVisualizer::loadConfig(const IniParser& ini)
 {
     constants.fft_size = ini.getOptionAsUnsignedInteger("octavebands", "fft_size");
@@ -50,9 +48,9 @@ OctavebandsVisualizer::OctavebandsVisualizer()
 OctavebandsVisualizer::~OctavebandsVisualizer()
 {}
 
-const std::string& OctavebandsVisualizer::getTitle() const
+const std::string OctavebandsVisualizer::getTitle() const
 {
-    return title;
+    return "Octave Bands Visualizer";
 }
 
 void OctavebandsVisualizer::audioThreadFunc()

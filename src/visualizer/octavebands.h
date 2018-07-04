@@ -18,12 +18,11 @@ class OctavebandsVisualizer : public Visualizer
 {
 public:
     static void loadConfig(const IniParser& ini);
-    static const std::string name;
 
     OctavebandsVisualizer();
     ~OctavebandsVisualizer() override;
 
-    const std::string& getTitle() const override;
+    const std::string getTitle() const override;
 
     void attachSRC() override;
     void detatchSRC() override;

@@ -15,12 +15,10 @@ public:
     } config;
     static void loadConfig(const IniParser& ini);
 
-    static const std::string name;
-
     WaveFormVisualizer();
     ~WaveFormVisualizer() override;
 
-    const std::string& getTitle() const override;
+    const std::string getTitle() const override;
 
     void attachSRC() override;
     void detatchSRC() override;

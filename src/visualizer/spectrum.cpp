@@ -15,8 +15,6 @@ struct
     float y_max = 0.0;
 } constants;
 
-const std::string title = "Spectrum Visualizer";
-
 void SpectrumVisualizer::loadConfig(const IniParser& ini)
 {
     constants.fft_size = ini.getOptionAsUnsignedInteger("spectrum", "fft_size");
@@ -39,9 +37,9 @@ SpectrumVisualizer::SpectrumVisualizer()
 SpectrumVisualizer::~SpectrumVisualizer()
 {}
 
-const std::string& SpectrumVisualizer::getTitle() const
+const std::string SpectrumVisualizer::getTitle() const
 {
-    return title;
+    return "Spectrum Visualizer";
 }
 
 void SpectrumVisualizer::audioThreadFunc()
