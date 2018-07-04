@@ -1,10 +1,5 @@
 #include "visualizer.h"
-#include "visualizer/dummy.h"
-#include "visualizer/waveform.h"
-#include "visualizer/spectrum.h"
-#include "visualizer/octavebands.h"
-#include "visualizer/spectrogram.h"
-#include "visualizer/spectrogram3d.h"
+#include <GL/glew.h>
 
 Visualizer::Visualizer()
 {}

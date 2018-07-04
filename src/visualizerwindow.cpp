@@ -1,5 +1,4 @@
 #include "visualizerwindow.h"
-#include "visualizer/dummy.h"
 
 VisualizerWindow::VisualizerWindow(PulseViz& pulseviz, VisualizerFactories& factories)
     :
