@@ -8,16 +8,10 @@
 // TODO: Use the same rendering trick as in our spectrum analyzer!
 // That way we could render huge chunks of data
 
-WaveFormVisualizer::Config WaveFormVisualizer::config;
-
-void WaveFormVisualizer::loadConfig(const IniParser& ini)
-{
-    config.buffer_size = ini.getOptionAsUnsignedInteger("waveform", "buffer_size");
-}
-
-WaveFormVisualizer::WaveFormVisualizer()
+WaveFormVisualizer::WaveFormVisualizer(size_t buffer_size)
     :
     Visualizer(),
+    buffer_size(buffer_size),
     shader("waveform"),
     palette{16, {
         {0.0, {1.0, 0.0, 0.0}},
@@ -25,10 +19,18 @@ WaveFormVisualizer::WaveFormVisualizer()
         {0.6, {1.0, 1.0, 1.0}},
         {1.0, {1.0, 1.0, 1.0}},
     }}
-{}
+{
+    this->quit_thread = false;
+    this->audio_thread = std::thread([this] {
+        this->audioThreadFunc();
+    });
+}
 
 WaveFormVisualizer::~WaveFormVisualizer()
-{}
+{
+    this->quit_thread = true;
+    this->audio_thread.join();
+}
 
 const std::string WaveFormVisualizer::getTitle() const
 {
@@ -38,7 +40,7 @@ const std::string WaveFormVisualizer::getTitle() const
 void WaveFormVisualizer::audioThreadFunc()
 {
     SimpleRecordClient src(10 * 1000, "pulseviz", "waveform");
-    Sampler sampler(src, config.buffer_size, 256);
+    Sampler sampler(src, this->buffer_size, 256);
 
     this->samples.resize(sampler.data.size());
 
@@ -76,27 +78,12 @@ void WaveFormVisualizer::draw()
     this->mutex.unlock();
 }
 
-void WaveFormVisualizer::attachSRC()
-{
-
-    this->quit_thread = false;
-    this->audio_thread = std::thread([this] {
-        this->audioThreadFunc();
-    });
-}
-
-void WaveFormVisualizer::detatchSRC()
-{
-    this->quit_thread = true;
-    this->audio_thread.join();
-}
-
 WaveFormVisualizerFactory::WaveFormVisualizerFactory(const IniParser& ini)
 {
-    WaveFormVisualizer::loadConfig(ini);
+    this->buffer_size = ini.getOptionAsUnsignedInteger("waveform", "buffer_size");
 }
 
 std::unique_ptr<Visualizer> WaveFormVisualizerFactory::create() const
 {
-    return std::unique_ptr<Visualizer>(new WaveFormVisualizer());
+    return std::unique_ptr<Visualizer>(new WaveFormVisualizer(this->buffer_size));
 }

@@ -1,5 +1,4 @@
-#ifndef WAVEFORM_H
-#define WAVEFORM_H
+#pragma once
 
 #include "../visualizer.h"
 #include "../dsp/sampler.h"
@@ -9,26 +8,17 @@
 class WaveFormVisualizer : public Visualizer
 {
 public:
-    static struct Config
-    {
-        unsigned int buffer_size = 0;
-    } config;
-    static void loadConfig(const IniParser& ini);
-
-    WaveFormVisualizer();
+    WaveFormVisualizer(size_t buffer_size);
     ~WaveFormVisualizer() override;
-
     const std::string getTitle() const override;
-
-    void attachSRC() override;
-    void detatchSRC() override;
     void draw() override;
 
-protected:
+private:
     void audioThreadFunc();
     bool quit_thread;
     std::thread audio_thread;
 
+    size_t buffer_size;
     std::vector<float> samples;
     std::mutex mutex;
 
@@ -41,6 +31,7 @@ class WaveFormVisualizerFactory : public VisualizerFactory
 public:
     WaveFormVisualizerFactory(const IniParser& ini);
     std::unique_ptr<Visualizer> create() const;
-};
 
-#endif // WAVEFORM_H
+private:
+    size_t buffer_size;
+};
