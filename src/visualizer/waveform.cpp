@@ -70,7 +70,7 @@ void WaveFormVisualizer::draw()
     {
         x += 1.0 / this->samples.size();
         glColor3f(1.0f - x, 0.0f, x);
-        glTexCoord2f(0.0f, std::abs(y) / 2.0f + 0.3f);
+        glTexCoord2f(0.0f, std::abs(y) / 2.0f);
         glVertex2f(x, y);
     }
     glEnd();
