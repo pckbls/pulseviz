@@ -21,7 +21,6 @@ STFT::STFT(SimpleRecordClient& src, size_t sample_size, size_t window_size, floa
     {
         case STFT::Window::RECTANGLE: this->window = this->generateRectangleWindow(sample_size); break;
         case STFT::Window::HAMMING: this->window = this->generateHammingWindow(sample_size); break;
-        default: throw "Unknown window type"; break;
     }
 
     this->window_sum = 0.0;
