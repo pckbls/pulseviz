@@ -13,6 +13,7 @@ struct PaletteColor
 };
 
 // TODO: Use typedef oder alias oder was auch immer für den std::vector<...> kram unten.
+// TODO: Make it possible to specify colors for over/underrange!
 
 class PaletteTexture : public Texture1D
 {

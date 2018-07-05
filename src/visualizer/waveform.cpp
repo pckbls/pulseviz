@@ -7,6 +7,7 @@
 
 // TODO: Use the same rendering trick as in our spectrum analyzer!
 // That way we could render huge chunks of data
+// TODO: Make visualizer respect dB_* configuration!
 
 WaveFormVisualizer::WaveFormVisualizer(size_t buffer_size)
     :
