@@ -15,9 +15,8 @@ WaveFormVisualizer::WaveFormVisualizer(size_t buffer_size)
     samples(buffer_size),
     shader("waveform"),
     palette{16, {
-        {0.0, {1.0, 0.0, 0.0}},
+        {0.0, {0.0, 0.0, 1.0}},
         {0.5, {1.0, 0.0, 1.0}},
-        {0.6, {1.0, 1.0, 1.0}},
         {1.0, {1.0, 1.0, 1.0}},
     }}
 {
