@@ -18,7 +18,7 @@ public:
 
     static std::vector<float> generateRectangleWindow(unsigned int n);
     static std::vector<float> generateHammingWindow(unsigned int n);
-    static float convertToDecibel(float magnitude);
+    static float convertToDecibel(float magnitude); // TODO: Remove this!
 
     STFT(SimpleRecordClient& src, size_t sample_size, size_t window_size, float window_overlap, STFT::Window window);
     STFT(STFT const& other) = delete;

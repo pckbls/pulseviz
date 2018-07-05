@@ -1,6 +1,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "stft.h"
+#include "util.h"
 
 STFT::STFT(SimpleRecordClient& src, size_t sample_size, size_t window_size, float window_overlap, Window window)
     :
@@ -85,21 +86,7 @@ std::vector<float> STFT::generateHammingWindow(unsigned int n)
 
 float STFT::convertToDecibel(float magnitude)
 {
-    // Convert the magnitude into dbFS and clamp it between [-min_dB; 0]
-    if (magnitude == 0.0f)
-        magnitude = STFT::min_dB;
-    else
-    {
-        magnitude = 20.0f * log10(magnitude);
-        if (magnitude < STFT::min_dB)
-            magnitude = STFT::min_dB;
-    }
-
-    // TODO: Remove this
-    if (magnitude > 0.0f)
-        throw "This should not happen at all";
-
-    return magnitude;
+    return ::convertToDecibel(magnitude, STFT::min_dB);
 }
 
 std::vector<float> STFT::generateRectangleWindow(unsigned int n)
