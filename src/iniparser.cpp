@@ -172,6 +172,27 @@ unsigned int IniParser::getOptionAsUnsignedInteger(const std::string &section, c
         return static_cast<unsigned int>(value);
 }
 
+float IniParser::getOptionAsFloat(const std::string &section, const std::string &key) const
+{
+    auto string = this->getOption(section, key);
+
+    std::string::size_type len;
+    float value;
+    try
+    {
+        value = std::stof(string, &len);
+    }
+    catch (std::invalid_argument&)
+    {
+        throw IniParserTypeConversionException(section, key, "float");
+    }
+
+    if (len != string.length())
+        throw IniParserTypeConversionException(section, key, "float");
+    else
+        return value;
+}
+
 const IniParser::SectionNameDataMap& IniParser::getData() const
 {
     if (!this->parsed)

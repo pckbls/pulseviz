@@ -167,4 +167,27 @@ TEST(IniParserTest, GetOptionAsUnsignedInteger)
     ASSERT_THROW(parser.getOptionAsUnsignedInteger("uints", "uint_6"), IniParserTypeConversionException);
 }
 
+TEST(IniParserTest, GetOptionAsFloat)
+{
+    IniParser parser;
+
+    std::stringstream ss(R"ini(
+        [floats]
+        float_1 = 0
+        float_2 = 1337.0
+        float_3 = -1
+        float_4 = a
+        float_5 =
+        float_6 = 1a
+    )ini");
+    ASSERT_NO_THROW(parser.parse(ss));
+
+    ASSERT_EQ(parser.getOptionAsFloat("floats", "float_1"), 0.0);
+    ASSERT_EQ(parser.getOptionAsFloat("floats", "float_2"), 1337.0);
+    ASSERT_EQ(parser.getOptionAsFloat("floats", "float_3"), -1.0);
+    ASSERT_THROW(parser.getOptionAsFloat("floats", "float_4"), IniParserTypeConversionException);
+    ASSERT_THROW(parser.getOptionAsFloat("floats", "float_5"), IniParserTypeConversionException);
+    ASSERT_THROW(parser.getOptionAsFloat("floats", "float_6"), IniParserTypeConversionException);
+}
+
 } // namespace

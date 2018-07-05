@@ -48,6 +48,7 @@ public:
     const std::string& getOption(const std::string& section, const std::string& key) const; // TODO: Rename to getOptionAsString
     bool getOptionAsBool(const std::string& section, const std::string& key) const;
     unsigned int getOptionAsUnsignedInteger(const std::string& section, const std::string& key) const;
+    float getOptionAsFloat(const std::string& section, const std::string& key) const;
 
     const SectionNameDataMap& getData() const;
 
