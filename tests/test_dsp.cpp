@@ -52,7 +52,12 @@ TEST(DSPTest, STFT)
 {
     SRCMock src;
     STFT stft(src, 1024, 512, 0.5, STFT::Window::RECTANGLE);
-    EXPECT_EQ(stft.coefficients.size(), 512);
+
+    ASSERT_EQ(stft.coefficients.size(), 513);
+
+    auto& frequencies = stft.getFrequencies();
+    ASSERT_EQ(frequencies[0], 0.0f);
+    ASSERT_EQ(frequencies.back(), src.getSampleRate() / 2.0f);
 }
 
 TEST(DSPTest, BandsAnalyzer)
