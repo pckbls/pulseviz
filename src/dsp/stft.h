@@ -24,7 +24,7 @@ public:
     STFT(STFT const& other) = delete;
     ~STFT();
     void slide();
-    const std::vector<float> &getFrequencies();
+    const std::vector<float> &getFrequencies() const;
     float getBinWidth();
 
     std::vector<float> coefficients; // TODO: Make private

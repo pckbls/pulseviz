@@ -66,7 +66,7 @@ void STFT::slide()
     }
 }
 
-const std::vector<float>& STFT::getFrequencies()
+const std::vector<float>& STFT::getFrequencies() const
 {
     return this->frequencies;
 }
