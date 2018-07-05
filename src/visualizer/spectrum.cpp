@@ -124,7 +124,7 @@ void SpectrumVisualizer::draw()
     glBindTexture(GL_TEXTURE_1D, this->palette.getHandle());
 
     this->shader.bind();
-    glLineWidth(2.0f);
+    glLineWidth(1.0f);
     glBegin(GL_LINE_STRIP);
 
     for (unsigned int i = 1; i < this->spectrum.size(); i++)
