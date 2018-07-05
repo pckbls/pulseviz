@@ -22,6 +22,7 @@ private:
     const SpectrumVisualizerFactory& factory;
 
     float frequency2xCoordinate(float frequency) const;
+    void drawGrid() const;
 
     void audioThreadFunc();
     bool quit_thread;

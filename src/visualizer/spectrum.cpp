@@ -79,9 +79,43 @@ float SpectrumVisualizer::frequency2xCoordinate(float frequency) const
     return log(frequency / a) / b;
 }
 
+void SpectrumVisualizer::drawGrid() const
+{
+    // TODO: Generate those in a smart matter depending on the chosen sample rate
+    std::vector<float> frequencies = {
+        10.0f, 20.0f, 30.0f, 40.0f, 50.0f, 60.0f, 70.0f, 80.0f, 90.0f,
+        100.0f, 200.0f, 300.0f, 400.0f, 500.0f, 600.0f, 700.0f, 800.0f, 900.0f,
+        1000.0f, 2000.0f, 3000.0f, 4000.0f, 5000.0f, 6000.0f, 7000.0f, 8000.0f, 9000.0f,
+        10000.0f, 20000.0f, 30000.0f, 40000.0f, 50000.0f, 60000.0f, 70000.0f, 80000.0f, 90000.0f,
+    };
+
+    // TODO: Generate those automatically!
+    std::vector<float> levels = {
+        -100.0f, -90.0f, -80.0f, -70.0f, -60.0f, -50.0f, -40.0f, -30.0f, -20.0f, -10.0f, 0.0f
+    };
+
+    glBegin(GL_LINES);
+    glLineWidth(2.0f);
+    glColor3f(0.05f, 0.05f, 0.05f);
+    for (const auto& frequency: frequencies)
+    {
+        float x = this->frequency2xCoordinate(frequency);
+        glVertex2f(x, this->factory.dB_min);
+        glVertex2f(x, this->factory.dB_max);
+    }
+    for (const auto& level: levels)
+    {
+        glVertex2f(0.0f, level);
+        glVertex2f(1.0f, level);
+    }
+    glEnd();
+}
+
 void SpectrumVisualizer::draw()
 {
     glClear(GL_COLOR_BUFFER_BIT);
+
+    this->drawGrid();
 
     this->data_mutex.lock();
 
