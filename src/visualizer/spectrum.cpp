@@ -71,7 +71,7 @@ void SpectrumVisualizer::resize(int width, int height)
     );
 }
 
-float SpectrumVisualizer::frequency2xCoordinate(float frequency)
+float SpectrumVisualizer::frequency2xCoordinate(float frequency) const
 {
     // TODO: It is sufficient to calculate those once!
     float b = log(this->stft.getFrequencies().back() / this->stft.getFrequencies()[1]) / (1.0f - 0.0f);
