@@ -71,7 +71,7 @@ void Spectrogram3DVisualizer::audioThreadFunc()
         // TODO: I think this section could be optimized. A for loop looks expensive.
         for (unsigned int i = 0; i < stft.coefficients.size(); i++)
         {
-            float coefficient_in_dB = STFT::convertToDecibel(stft.coefficients[i]);
+            float coefficient_in_dB = stft.coefficients[i];
             this->row[i] = (coefficient_in_dB - constants.y_min) / (constants.y_max - constants.y_min);
         }
         this->render_mutex.unlock();
