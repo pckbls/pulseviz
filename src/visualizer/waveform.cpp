@@ -52,6 +52,16 @@ void WaveFormVisualizer::audioThreadFunc()
     }
 }
 
+void WaveFormVisualizer::resize(int width, int height)
+{
+    glViewport(0, 0, width, height);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0.0, 1.0, -1.0, 1.0, -1, 1);
+}
+
 void WaveFormVisualizer::draw()
 {
     glClear(GL_COLOR_BUFFER_BIT);

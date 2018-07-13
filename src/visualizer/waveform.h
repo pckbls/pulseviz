@@ -11,6 +11,7 @@ public:
     WaveFormVisualizer(size_t buffer_size);
     ~WaveFormVisualizer() override;
     const std::string getTitle() const override;
+    void resize(int width, int height) override;
     void draw() override;
 
 private:
