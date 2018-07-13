@@ -84,4 +84,24 @@ TEST(DSPTest, BandsAnalyzer)
         ASSERT_EQ(bands.getBands()[i].magnitude, expected_magnitudes[i]);
 }
 
+TEST(DSPTest, AWeighting)
+{
+    // Reference values taken from: https://www.vernier.com/til/3500/
+    std::vector<float> frequencies = {31.5f, 63.0f, 125.0f, 250.0f, 500.0f, 1000.0f, 2000.0f, 4000.0f, 8000.0f};
+    std::vector<float> reference_weightings = {-39.4f, -26.2f, -16.1f, -8.6f, -3.2f, 0.0f, 1.2f, 1.0f, -1.1f};
+
+    for (unsigned int i = 0; i < frequencies.size(); i++)
+    {
+        float foo = STFT::calculateFrequencyWeighting(frequencies[i], STFT::Weighting::A);
+        ASSERT_NEAR(foo, reference_weightings[i], 1.0f);
+    }
+}
+
+TEST(DSPTest, ZWeighting)
+{
+    ASSERT_FLOAT_EQ(1.0f, STFT::calculateFrequencyWeighting(0.0, STFT::Weighting::Z));
+    ASSERT_FLOAT_EQ(1.0f, STFT::calculateFrequencyWeighting(1337.0, STFT::Weighting::Z));
+    ASSERT_FLOAT_EQ(1.0f, STFT::calculateFrequencyWeighting(20000.0, STFT::Weighting::Z));
+}
+
 } // namespace

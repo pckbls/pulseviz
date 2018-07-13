@@ -3,7 +3,10 @@
 #include "stft.h"
 #include "util.h"
 
-STFT::STFT(SimpleRecordClient& src, size_t sample_size, size_t window_size, float window_overlap, Window window)
+STFT::STFT(SimpleRecordClient& src,
+           size_t sample_size,
+           size_t window_size, float window_overlap,
+           Window window, Weighting weighting)
     :
     coefficients(sample_size / 2 + 1),
     sample_size(sample_size),
@@ -12,7 +15,8 @@ STFT::STFT(SimpleRecordClient& src, size_t sample_size, size_t window_size, floa
         src,
         sample_size,
         std::floor((float)window_size * (1.0 - window_overlap))
-    )
+    ),
+    frequency_weights(sample_size / 2 + 1)
 {
     this->in = fftwf_alloc_real(sample_size);
     this->out = fftwf_alloc_complex(this->coefficients.size());
@@ -29,7 +33,10 @@ STFT::STFT(SimpleRecordClient& src, size_t sample_size, size_t window_size, floa
         this->window_sum += value;
 
     for (unsigned int i = 0; i < this->coefficients.size(); i++)
+    {
         this->frequencies[i] = static_cast<float>(i) / static_cast<float>(this->coefficients.size() - 1) * src.getSampleRate() / 2.0f;
+        this->frequency_weights[i] = this->calculateFrequencyWeighting(this->frequencies[i], weighting);
+    }
 }
 
 STFT::~STFT()
@@ -62,6 +69,12 @@ void STFT::slide()
         magnitude *= 2.0;
         magnitude /= this->window_sum;
 
+        // TODO: Describe!
+        magnitude = this->convertToDecibel(magnitude);
+
+        // TODO: Describe!
+        magnitude += this->frequency_weights[i];
+
         this->coefficients[i] = magnitude;
     }
 }
@@ -74,6 +87,29 @@ const std::vector<float>& STFT::getFrequencies() const
 float STFT::getBinWidth()
 {
     return (2.0f / (float)this->sample_size) * (this->sampler.src.getSampleRate() / 2.0f);
+}
+
+float STFT::calculateFrequencyWeighting(float frequency, STFT::Weighting weighting)
+{
+    switch (weighting)
+    {
+        case STFT::Weighting::A:
+        {
+            float a = pow(12194.0f, 2.0f) * pow(frequency, 4.0f);
+            float b = (pow(frequency, 2.0f) + pow(20.6f, 2.0f));
+            float c = (pow(frequency, 2.0f) + pow(107.7f, 2.0f));
+            float d = (pow(frequency, 2.0f) + pow(737.9f, 2.0f));
+            float e = (pow(frequency, 2.0f) + pow(12194.0f, 2.0f));
+            float R_A = a / (b * sqrt(c * d) * e);
+            float A = 20.0f * log10(R_A) + 2.0f;
+            return A;
+        }
+
+        case STFT::Weighting::Z:
+        {
+            return 1.0f;
+        }
+    }
 }
 
 std::vector<float> STFT::generateHammingWindow(unsigned int n)
