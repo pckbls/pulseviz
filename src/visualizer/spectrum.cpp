@@ -51,7 +51,7 @@ void SpectrumVisualizer::audioThreadFunc()
 
         this->data_mutex.lock();
         for (unsigned int i = 0; i < this->spectrum.size(); i++)
-            this->spectrum[i] = STFT::convertToDecibel(stft.coefficients[i]);
+            this->spectrum[i] = stft.coefficients[i];
         this->data_mutex.unlock();
     }
 }
