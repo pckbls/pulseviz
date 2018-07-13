@@ -2,56 +2,66 @@
 #include "fbo.h"
 #include <iostream>
 
-// TODO: Use GL_CLAMP, see: https://wiki.delphigl.com/index.php/glTexParameter
-// TODO: Use GL_CLAMP_TO_BORDER and set specific "error" color using GL_TEXTURE_BORDER_COLOR
-
 PaletteColor::PaletteColor(float r, float g, float b)
     :
     r(r), g(g), b(b)
 {}
 
-PaletteTexture::PaletteTexture(size_t width, ColorVector colors):
+PaletteTexture::PaletteTexture(size_t width, ColorVector colors)
+    :
     Texture1D(Texture::ColorFormat::RGB, width)
 {
     this->bind();
     this->setFiltering(Texture::Filtering::BILINEAR);
+
+    // TODO: This does not work yet! Do we have to manually specify a border?
+    float border_color[] = {1.0f, 0.0f, 1.0f};
+    glTexParameterfv(GL_TEXTURE_1D, GL_TEXTURE_BORDER_COLOR, border_color);
+    this->setWrapMode(GL_CLAMP_TO_BORDER);
+
+    // TODO: Remove!
     this->setWrapMode(GL_CLAMP_TO_EDGE);
 
-    // Save the current viewport state.
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
-    glMatrixMode(GL_MODELVIEW); glPushMatrix();
-    glMatrixMode(GL_PROJECTION); glPushMatrix();
+    std::vector<float> data(this->getLength() * 3);
 
-    // Now fill up the palette with meaningful data.
-    FBO fbo(*this);
-    fbo.bind();
-    this->render(colors);
-    fbo.unbind();
+    for (unsigned int i = 0; i < data.size(); i += 3)
+    {
+        float pos = i / (3.0f * (this->getLength() - 1));
 
-    // Restore the previous viewport state.
-    glMatrixMode(GL_MODELVIEW); glPopMatrix();
-    glMatrixMode(GL_PROJECTION); glPopMatrix();
-    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+        // TODO: Describe!
+        auto pair = this->findGradientPair(colors, pos);
+        const auto& color_a = colors[pair.first];
+        const auto& color_b = colors[pair.second];
+
+        // TODO: Rename!
+        float bla = (pos - color_a.first) * 1.0f / (color_b.first - color_a.first);
+
+        // TODO: Describe!
+        data[i+0] = bla * (color_b.second.r - color_a.second.r) + color_a.second.r; // Red
+        data[i+1] = bla * (color_b.second.g - color_a.second.g) + color_a.second.g; // Green
+        data[i+2] = bla * (color_b.second.b - color_a.second.b) + color_a.second.b; // Blue
+    }
+
+    this->uploadData(data);
 }
 
-void PaletteTexture::render(ColorVector &colors)
+std::pair<unsigned int, unsigned int> PaletteTexture::findGradientPair(const PaletteTexture::ColorVector& colors, float x)
 {
-    glViewport(0, 0, this->getLength(), 1);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0.0, 1.0, 0.0, 1.0, -1, 1);
+    // TODO: assert that size(colors) > 2;
+    // TODO: assert that x coordinates of ColorVector are monotonically increasing.
 
-    glLineWidth(1.0);
-    glBegin(GL_LINE_STRIP);
-    for (auto pair: colors)
+    unsigned int a = 0, b = 0;
+
+    for (unsigned int i = 0; i < colors.size() - 1; i++)
     {
-        float& x = pair.first;
-        PaletteColor& color = pair.second;
-        glColor3f(color.r, color.g, color.b);
-        glVertex2f(x, 0.5f);
+        if (colors[i].first <= x && x <= colors[i+1].first)
+        {
+            a = i;
+            b = i+1;
+        }
     }
-    glEnd();
+
+    // TODO: Check if a && b are still 0.
+
+    return std::make_pair(a, b);
 }

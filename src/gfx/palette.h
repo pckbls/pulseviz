@@ -22,10 +22,12 @@ class PaletteTexture : public Texture1D
 
 public:
     // TODO: Use reference
+    // TODO: The width parameter is useless!
     PaletteTexture(size_t width, ColorVector colors);
 
-protected:
-    void render(ColorVector& colors);
+private:
+    // TODO: Find a more suitable name!
+    std::pair<unsigned int, unsigned int> findGradientPair(const ColorVector& colors, float x);
 };
 
 #endif // PALETTE_H
