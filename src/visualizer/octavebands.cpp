@@ -72,7 +72,7 @@ void OctavebandsVisualizer::audioThreadFunc()
         unsigned int i = 0;
         for (Bar &bar: this->bars)
         {
-            bar.height = STFT::convertToDecibel(bands_analyzer.getBands()[i].magnitude);
+            bar.height = bands_analyzer.getBands()[i].magnitude;
             i += 1;
         }
         this->render_mutex.unlock();
