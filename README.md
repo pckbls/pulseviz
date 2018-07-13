@@ -10,6 +10,7 @@
 
 * `glfw`
 * `glew`
+* `glm`
 * `libpulse` and `libpulse-simple`
 * `fftw3`
 
