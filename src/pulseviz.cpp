@@ -119,6 +119,11 @@ bool PulseViz::loadConfig()
         std::cerr << e.what() << std::endl;
         return false;
     }
+    catch (const char *c)
+    {
+        std::cerr << c << std::endl;
+        return false;
+    }
 
     return true;
 }
