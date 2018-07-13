@@ -112,3 +112,9 @@ GLint Shader::getUniformLocation(const std::string &name)
     const char *c_str = name.c_str();
     return glGetUniformLocation(this->handle, c_str);
 }
+
+void Shader::bindTextureToUniform(const std::string& uniform, const Texture& texture, unsigned int unit)
+{
+    texture.bind(unit);
+    glUniform1i(this->getUniformLocation(uniform), unit);
+}

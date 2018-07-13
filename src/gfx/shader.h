@@ -3,6 +3,7 @@
 
 #include <string>
 #include <GL/glew.h>
+#include "./texture.h"
 
 class Shader
 {
@@ -15,6 +16,9 @@ public:
     void unbind();
     GLint getAttribLocation(const std::string &name);
     GLint getUniformLocation(const std::string &name);
+
+    // TODO: Remove?
+    void bindTextureToUniform(const std::string& uniform, const Texture& texture, unsigned int unit);
 
 private:
     void initialize(const std::string& vertex_shader_source, const std::string& fragment_shader_source);
