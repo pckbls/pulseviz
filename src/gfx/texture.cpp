@@ -27,8 +27,11 @@ Texture::~Texture()
     glDeleteTextures(1, &this->handle);
 }
 
-void Texture::bind() const
+void Texture::bind(unsigned int texture_unit) const
 {
+    // TODO: Check result!
+    // See: https://www.khronos.org/registry/OpenGL-Refpages/es1.1/xhtml/glActiveTexture.xml
+    glActiveTexture(GL_TEXTURE0 + texture_unit);
     glBindTexture(this->getTarget(), this->handle);
 }
 
