@@ -21,14 +21,20 @@ file(GLOB TEST_DATA
 )
 
 add_executable(run_tests ${TEST_SOURCES} ${TEST_DATA})
+target_include_directories(
+    run_tests PUBLIC
+    ${GLEW_INCLUDE_DIRS}
+    ${LIBPULSE_INCLUDE_DIRS}
+    ${LIBPULSE_SIMPLE_INCLUDE_DIRS}
+    ${FFTW3F_INCLUDE_DIRS}
+)
 target_link_libraries(run_tests
     Threads::Threads
-    ${LIBPULSE}
-    ${LIBPULSE_SIMPLE}
-    ${OPENGL_gl_LIBRARY}
-    ${glfw}
-    ${GLEW}
-    ${FFTW3F}
+    glfw
+    ${LIBPULSE_LIBRARIES}
+    ${LIBPULSE_SIMPLE_LIBRARIES}
+    ${GLEW_LIBRARIES}
+    ${FFTW3F_LIBRARIES}
     GTest::GTest
     GTest::Main
 )
