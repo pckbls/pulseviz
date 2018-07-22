@@ -1,5 +1,4 @@
-#ifndef UTIL_H
-#define UTIL_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -36,5 +35,3 @@ T clip(T n, T lower, T upper)
 }
 
 }
-
-#endif // UTIL_H
