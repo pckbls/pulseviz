@@ -16,12 +16,6 @@ public:
     Visualizer();
     Visualizer(const Visualizer&) = delete;
     virtual ~Visualizer();
-
-    // TODO: Rewrite visualizers to no longer use those, then remove the following
-    // methods.
-    virtual void attachSRC();
-    virtual void detatchSRC();
-
     virtual const std::string getTitle() const = 0;
     virtual void draw();
     virtual void resize(int width, int height);

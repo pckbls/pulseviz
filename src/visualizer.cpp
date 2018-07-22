@@ -16,11 +16,5 @@ void Visualizer::resize(int width, int height)
     (void)height;
 }
 
-void Visualizer::attachSRC()
-{}
-
-void Visualizer::detatchSRC()
-{}
-
 VisualizerFactory::VisualizerFactory() {}
 VisualizerFactory::~VisualizerFactory() {}
