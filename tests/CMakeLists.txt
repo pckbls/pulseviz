@@ -20,7 +20,11 @@ file(GLOB TEST_DATA
     ../share/*.ini
 )
 
-add_executable(run_tests ${TEST_SOURCES} ${TEST_DATA})
+add_executable(run_tests
+    EXCLUDE_FROM_ALL
+    ${TEST_SOURCES}
+    ${TEST_DATA}
+)
 target_include_directories(
     run_tests PUBLIC
     ${GLEW_INCLUDE_DIRS}
@@ -38,5 +42,7 @@ target_link_libraries(run_tests
     GTest::GTest
     GTest::Main
 )
+add_custom_target(test)
+add_dependencies(test run_tests)
 
 gtest_add_tests(TARGET run_tests)
