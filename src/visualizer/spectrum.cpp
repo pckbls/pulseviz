@@ -16,14 +16,17 @@ SpectrumVisualizer::SpectrumVisualizer(const SpectrumVisualizerFactory &factory)
         factory.fft_size,
         1024,
         0.5,
-        STFT::Window::HAMMING
+        STFT::Window::HAMMING,
+        STFT::Weighting::Z
     ),
     spectrum(stft.coefficients.size()),
     shader("spectrum"),
-    palette{16, {
-        {0.0, {0.0, 0.0, 1.0}},
-        {0.75, {1.0, 0.0, 1.0}},
-        {1.0, {1.0, 1.0, 1.0}}
+    palette{64, {
+        {0.00, {0.0f, 0.0f, 0.0f}},
+        {0.20, {0.0f, 0.0f, 0.5f}},
+        {0.45, {1.0f, 0.0f, 1.0f}},
+        {0.80, {1.0f, 1.0f, 0.0f}},
+        {1.00, {1.0f, 1.0f, 1.0f}}
     }}
 {
     this->quit_thread = false;
@@ -50,6 +53,8 @@ void SpectrumVisualizer::audioThreadFunc()
         this->stft.slide();
 
         this->data_mutex.lock();
+        // TODO: Why do we do this?! Couldn't this be removed for improved performance?
+        // Or at least use a copy function..
         for (unsigned int i = 0; i < this->spectrum.size(); i++)
             this->spectrum[i] = stft.coefficients[i];
         this->data_mutex.unlock();
@@ -94,20 +99,35 @@ void SpectrumVisualizer::drawGrid() const
         -100.0f, -90.0f, -80.0f, -70.0f, -60.0f, -50.0f, -40.0f, -30.0f, -20.0f, -10.0f, 0.0f
     };
 
+    glDisable(GL_TEXTURE_1D);
+    glDisable(GL_TEXTURE_2D);
+
     glBegin(GL_LINES);
-    glLineWidth(2.0f);
-    glColor3f(0.05f, 0.05f, 0.05f);
+    glLineWidth(1.0f);
+    glColor3f(0.1f, 0.1f, 0.1f);
+
+    // Vertical lines
     for (const auto& frequency: frequencies)
     {
         float x = this->frequency2xCoordinate(frequency);
         glVertex2f(x, this->factory.dB_min);
         glVertex2f(x, this->factory.dB_max);
     }
+
+    // Horizontal lines
     for (const auto& level: levels)
     {
         glVertex2f(0.0f, level);
         glVertex2f(1.0f, level);
     }
+
+    // Horizontal clipping line
+    {
+        auto level = this->factory.dB_clip;
+        glVertex2f(0.0f, level);
+        glVertex2f(1.0f, level);
+    }
+
     glEnd();
 }
 
@@ -115,18 +135,19 @@ void SpectrumVisualizer::draw()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    this->drawGrid();
+    if (this->factory.enable_grid)
+        this->drawGrid();
 
     this->data_mutex.lock();
 
-    glActiveTexture(GL_TEXTURE0 + 0);
-    glUniform1i(this->shader.getUniformLocation("palette"), 0);
-    glBindTexture(GL_TEXTURE_1D, this->palette.getHandle());
-
     this->shader.bind();
-    glLineWidth(1.0f);
-    glBegin(GL_LINE_STRIP);
+    this->shader.bindTextureToUniform("palette", this->palette, 0);
 
+    glBegin(GL_LINE_STRIP);
+    glLineWidth(1.0f);
+
+    // We start at i = 1 because we do not want to draw the DC component
+    // that is stored at i = 0.
     for (unsigned int i = 1; i < this->spectrum.size(); i++)
     {
         float frequency = this->stft.getFrequencies()[i];
@@ -150,6 +171,11 @@ SpectrumVisualizerFactory::SpectrumVisualizerFactory(const IniParser& ini)
     this->dB_max = ini.getOptionAsFloat("general", "dB_max");
     this->dB_clip = ini.getOptionAsFloat("general", "dB_clip");
     this->fft_size = ini.getOptionAsUnsignedInteger("fft", "fft_size");
+    this->fill = ini.getOptionAsBool("spectrum", "fill");
+    this->enable_grid = ini.getOptionAsBool("spectrum", "grid");
+
+    if (this->fill)
+        throw "spectrum.fill has not been implemented yet.";
 }
 
 std::unique_ptr<Visualizer> SpectrumVisualizerFactory::create() const

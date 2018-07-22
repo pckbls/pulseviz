@@ -49,6 +49,8 @@ public:
 private:
     size_t fft_size;
     float dB_min, dB_max, dB_clip;
+    bool fill;
+    bool enable_grid;
 };
 
 #endif // SPECTRUM_H
