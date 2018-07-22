@@ -28,13 +28,10 @@ void VisualizerWindow::attachVisualizer(std::unique_ptr<Visualizer> visualizer)
 
     std::string window_title = "pulseviz - " + this->visualizer->getTitle();
     glfwSetWindowTitle(this->window_handle, window_title.c_str());
-
-    this->visualizer->attachSRC();
 }
 
 void VisualizerWindow::detatchVisualizer()
 {
-    this->visualizer->detatchSRC();
     // TODO: Throw exception if now visualizer has been attached?
     this->visualizer.reset(); // TODO: Is reset correct?
 }
