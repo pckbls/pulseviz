@@ -15,7 +15,7 @@ PaletteTexture::PaletteTexture(size_t width, ColorVector colors)
     this->setFiltering(Texture::Filtering::BILINEAR);
 
     // TODO: This does not work yet! Do we have to manually specify a border?
-    float border_color[] = {1.0f, 0.0f, 1.0f};
+    float border_color[] = {1.0f, 0.0f, 1.0f, 1.0f};
     glTexParameterfv(GL_TEXTURE_1D, GL_TEXTURE_BORDER_COLOR, border_color);
     this->setWrapMode(GL_CLAMP_TO_BORDER);
 
