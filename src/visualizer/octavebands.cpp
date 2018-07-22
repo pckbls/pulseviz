@@ -17,13 +17,16 @@ struct
     float y_max = 0.0;
     float tick_velocity = 0.000000025;
     float bar_spacing = 0.0025;
+    bool enable_ticks;
 } constants;
 
 void OctavebandsVisualizer::loadConfig(const IniParser& ini)
 {
-    constants.fft_size = ini.getOptionAsUnsignedInteger("octavebands", "fft_size");
-    constants.window_size = ini.getOptionAsUnsignedInteger("octavebands", "window_size");
+    constants.fft_size = ini.getOptionAsUnsignedInteger("fft", "fft_size");
+    constants.window_size = ini.getOptionAsUnsignedInteger("fft", "window_size");
     constants.n = ini.getOptionAsUnsignedInteger("octavebands", "n");
+    constants.bar_spacing = ini.getOptionAsFloat("octavebands", "spacing");
+    constants.enable_ticks = ini.getOptionAsBool("octavebands", "ticks");
 }
 
 OctavebandsVisualizer::OctavebandsVisualizer()
@@ -32,9 +35,8 @@ OctavebandsVisualizer::OctavebandsVisualizer()
     bars(generateOctaveBands(constants.n).size()), // TODO: meh..
     shader("octavebands"),
     palette{16, {
-        {0.0, {1.0, 0.0, 0.0}},
-        {0.5, {1.0, 0.0, 1.0}},
-        {0.6, {1.0, 1.0, 1.0}},
+        {0.0, {0.0, 0.0, 0.75}},
+        {0.5, {1.0, 0.0, 0.75}},
         {1.0, {1.0, 1.0, 1.0}},
     }}
 {
@@ -61,7 +63,8 @@ void OctavebandsVisualizer::audioThreadFunc()
         constants.fft_size,
         constants.window_size,
         constants.window_overlap,
-        STFT::Window::HAMMING
+        STFT::Window::HAMMING,
+        STFT::Weighting::Z
     );
     BandsAnalyzer bands_analyzer(stft, generateOctaveBands(constants.n), BandWeighting::Z);
 
@@ -97,7 +100,7 @@ void OctavebandsVisualizer::updateTicks()
 
     for (Bar &bar: this->bars)
     {
-        bar.tick_height -= constants.tick_velocity * (float)duration.count();
+        bar.tick_height -= constants.tick_velocity * static_cast<float>(duration.count());
         if (bar.tick_height < bar.height)
             bar.tick_height = bar.height;
     }
@@ -107,25 +110,12 @@ void OctavebandsVisualizer::draw()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-#if 0
-    glLineWidth(1.0);
-    glBegin(GL_LINES);
-    glColor3f(0.1, 0.1, 0.1);
-    glVertex2f(0.0, 0.0);
-    glVertex2f(1.0, 0.0);
-    glEnd();
-#endif
-
     // TODO: Initialize in constructor
-    const float bars_width = (1.0 - (this->bars.size() - 1) * constants.bar_spacing) / this->bars.size();
+    const float bars_width = (1.0f - (this->bars.size() - 1) * constants.bar_spacing) / this->bars.size();
 
     this->updateTicks();
 
     this->render_mutex.lock();
-
-    glActiveTexture(GL_TEXTURE0 + 0);
-    glUniform1i(this->shader.getUniformLocation("palette"), 0);
-    this->palette.bind();
 
     unsigned int i = 0;
     for (Bar &bar: this->bars)
@@ -137,8 +127,10 @@ void OctavebandsVisualizer::draw()
         float magnitude = (bar.height - constants.y_min) / (constants.y_max - constants.y_min);
         magnitude *= 1.0;
 
-#if 1
         this->shader.bind();
+        glActiveTexture(GL_TEXTURE0 + 0);
+        glUniform1i(this->shader.getUniformLocation("palette"), 0);
+        this->palette.bind();
         glBegin(GL_QUADS);
         glTexCoord2f(0.0, 0.0);
         glVertex2f(x_min, constants.y_min);
@@ -148,17 +140,17 @@ void OctavebandsVisualizer::draw()
         glVertex2f(x_min, bar.height);
         glEnd();
         this->shader.unbind();
-#else
-        // TODO: Render GL_POINTS for testing purposes
-#endif
 
-        glLineWidth(2.0);
-        glBegin(GL_LINES);
-        auto bg_color = PaletteColor(0.0f, 0.0f, 0.0f); // TODO: Remove!
-        glColor3f(1.0f - bg_color.r, 1.0f - bg_color.g, 1.0f - bg_color.b);
-        glVertex2f(x_min, bar.tick_height);
-        glVertex2f(x_max, bar.tick_height);
-        glEnd();
+        if (constants.enable_ticks)
+        {
+            glLineWidth(2.0);
+            glBegin(GL_LINES);
+            auto bg_color = PaletteColor(0.0f, 0.0f, 0.0f); // TODO: Remove!
+            glColor3f(1.0f - bg_color.r, 1.0f - bg_color.g, 1.0f - bg_color.b);
+            glVertex2f(x_min, bar.tick_height);
+            glVertex2f(x_max, bar.tick_height);
+            glEnd();
+        }
 
         i += 1;
     }
@@ -168,7 +160,6 @@ void OctavebandsVisualizer::draw()
 
 void OctavebandsVisualizer::attachSRC()
 {
-
     this->quit_thread = false;
     this->audio_thread = std::thread([this] {
         this->audioThreadFunc();
