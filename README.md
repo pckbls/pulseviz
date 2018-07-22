@@ -17,7 +17,7 @@
 ## Build and run pulseviz
 
 ```sh
-mkdir build && cd build && cmake .. && make && ./pulseviz
+mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make && ./pulseviz
 ```
 
 # Usage
