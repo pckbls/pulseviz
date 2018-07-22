@@ -8,29 +8,28 @@
 #include "../gfx/ringbuffertexture.h"
 #include "../dsp/stft.h"
 
+class Spectrogram3DVisualizerFactory;
+
 // TODO: Inherit from SpectrogramVisualizer to reduce code redundancy!
 class Spectrogram3DVisualizer : public Visualizer
 {
 public:
-    static void loadConfig(const IniParser& ini);
-
-    Spectrogram3DVisualizer();
+    Spectrogram3DVisualizer(const Spectrogram3DVisualizerFactory& factory);
     ~Spectrogram3DVisualizer() override;
-
     const std::string getTitle() const override;
-
-    void attachSRC() override;
-    void detatchSRC() override;
     void draw() override;
     void resize(int width, int height) override;
 
-protected:
+private:
     void audioThreadFunc();
     bool quit_thread;
     std::thread audio_thread;
 
     void drawPlane(float y);
     void rotate();
+
+    SimpleRecordClient src;
+    STFT stft;
 
     std::vector<float> row;
     RingBufferTexture2D texture;
@@ -45,8 +44,6 @@ protected:
     static const size_t grid_columns = 200;
     float grid[grid_rows][grid_columns];
 
-    float last_start_index;
-
     struct
     {
         float x, y, z;
@@ -55,9 +52,15 @@ protected:
 
 class Spectrogram3DVisualizerFactory : public VisualizerFactory
 {
+    friend class Spectrogram3DVisualizer;
+
 public:
     Spectrogram3DVisualizerFactory(const IniParser& ini);
     std::unique_ptr<Visualizer> create() const;
+
+private:
+    size_t fft_size;
+    float dB_min, dB_max, dB_clip;
 };
 
 #endif // SPECTROGRAM_3D_H

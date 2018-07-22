@@ -16,14 +16,18 @@ const struct
     bool scrolling = true;
 } constants;
 
-void Spectrogram3DVisualizer::loadConfig(const IniParser& ini)
-{
-    (void)ini;
-}
-
-Spectrogram3DVisualizer::Spectrogram3DVisualizer()
+Spectrogram3DVisualizer::Spectrogram3DVisualizer(const Spectrogram3DVisualizerFactory& factory)
     :
     Visualizer(),
+    src(10 * 1000, "pulseviz", "spectrogram3d"),
+    stft(
+        this->src,
+        constants.fft_size,
+        constants.window_size,
+        constants.window_overlap,
+        STFT::Window::HAMMING,
+        STFT::Weighting::Z
+    ),
     row((constants.fft_size / 2) + 1),
     texture(this->grid_rows, row.size()),
     shader("spectrogram3d"),
@@ -33,9 +37,10 @@ Spectrogram3DVisualizer::Spectrogram3DVisualizer()
         {0.30, {1.0f, 0.0f, 1.0f}},
         {0.80, {1.0f, 1.0f, 0.0f}},
         {1.00, {1.0f, 1.0f, 1.0f}}
-    }},
-    last_start_index(0.0)
+    }}
 {
+    (void)factory;
+
     for (unsigned int i = 0; i < this->grid_rows; i++)
         for (unsigned int j = 0; j < this->grid_columns; j++)
             this->grid[i][j] = 0.0;
@@ -43,10 +48,18 @@ Spectrogram3DVisualizer::Spectrogram3DVisualizer()
     this->rotation.z = 0.0;
     this->rotation.z = 0.0;
     this->rotation.x = 80.0;
+
+    this->quit_thread = false;
+    this->audio_thread = std::thread([this] {
+        this->audioThreadFunc();
+    });
 }
 
 Spectrogram3DVisualizer::~Spectrogram3DVisualizer()
-{}
+{
+    this->quit_thread = true;
+    this->audio_thread.join();
+}
 
 const std::string Spectrogram3DVisualizer::getTitle() const
 {
@@ -55,24 +68,14 @@ const std::string Spectrogram3DVisualizer::getTitle() const
 
 void Spectrogram3DVisualizer::audioThreadFunc()
 {
-    SimpleRecordClient src(10 * 1000, "pulseviz", "spectrogram3d");
-    STFT stft(
-        src,
-        constants.fft_size,
-        constants.window_size,
-        constants.window_overlap,
-        STFT::Window::HAMMING,
-        STFT::Weighting::Z
-    );
-
     while (!this->quit_thread)
     {
-        stft.slide();
+        this->stft.slide();
         this->render_mutex.lock();
         // TODO: I think this section could be optimized. A for loop looks expensive.
-        for (unsigned int i = 0; i < stft.coefficients.size(); i++)
+        for (unsigned int i = 0; i < this->stft.coefficients.size(); i++)
         {
-            float coefficient_in_dB = stft.coefficients[i];
+            float coefficient_in_dB = this->stft.coefficients[i];
             this->row[i] = (coefficient_in_dB - constants.y_min) / (constants.y_max - constants.y_min);
         }
         this->render_mutex.unlock();
@@ -191,27 +194,16 @@ void Spectrogram3DVisualizer::draw()
     glDisable(GL_DEPTH_TEST);
 }
 
-void Spectrogram3DVisualizer::attachSRC()
-{
-
-    this->quit_thread = false;
-    this->audio_thread = std::thread([this] {
-        this->audioThreadFunc();
-    });
-}
-
-void Spectrogram3DVisualizer::detatchSRC()
-{
-    this->quit_thread = true;
-    this->audio_thread.join();
-}
-
 Spectrogram3DVisualizerFactory::Spectrogram3DVisualizerFactory(const IniParser& ini)
 {
-    Spectrogram3DVisualizer::loadConfig(ini);
+    this->dB_min = ini.getOptionAsFloat("general", "dB_min");
+    this->dB_max = ini.getOptionAsFloat("general", "dB_max");
+    this->dB_clip = ini.getOptionAsFloat("general", "dB_clip");
+    this->fft_size = ini.getOptionAsUnsignedInteger("fft", "fft_size");
 }
 
 std::unique_ptr<Visualizer> Spectrogram3DVisualizerFactory::create() const
 {
-    return std::unique_ptr<Visualizer>(new Spectrogram3DVisualizer());
+    auto* visualizer = new Spectrogram3DVisualizer(*this);
+    return std::unique_ptr<Visualizer>(visualizer);
 }
