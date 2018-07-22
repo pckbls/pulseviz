@@ -61,7 +61,8 @@ void Spectrogram3DVisualizer::audioThreadFunc()
         constants.fft_size,
         constants.window_size,
         constants.window_overlap,
-        STFT::Window::HAMMING
+        STFT::Window::HAMMING,
+        STFT::Weighting::Z
     );
 
     while (!this->quit_thread)
@@ -115,6 +116,8 @@ void Spectrogram3DVisualizer::draw()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_TEXTURE_1D);
+    glEnable(GL_TEXTURE_2D);
 
 #if 0
     this->rotate();
