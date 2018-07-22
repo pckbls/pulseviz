@@ -32,7 +32,17 @@ void OctavebandsVisualizer::loadConfig(const IniParser& ini)
 OctavebandsVisualizer::OctavebandsVisualizer()
     :
     Visualizer(),
-    bars(generateOctaveBands(constants.n).size()), // TODO: meh..
+    src(10 * 1000, "pulseviz", "octavebands"),
+    stft(
+        src,
+        constants.fft_size,
+        constants.window_size,
+        constants.window_overlap,
+        STFT::Window::HAMMING,
+        STFT::Weighting::Z
+    ),
+    bands_analyzer(stft, generateOctaveBands(constants.n)),
+    bars(bands_analyzer.getBands().size()),
     shader("octavebands"),
     palette{16, {
         {0.0, {0.0, 0.0, 0.75}},
@@ -45,10 +55,18 @@ OctavebandsVisualizer::OctavebandsVisualizer()
         bar.height = constants.y_min;
         bar.tick_height = constants.y_min;
     }
+
+    this->quit_thread = false;
+    this->audio_thread = std::thread([this] {
+        this->audioThreadFunc();
+    });
 }
 
 OctavebandsVisualizer::~OctavebandsVisualizer()
-{}
+{
+    this->quit_thread = true;
+    this->audio_thread.join();
+}
 
 const std::string OctavebandsVisualizer::getTitle() const
 {
@@ -57,25 +75,14 @@ const std::string OctavebandsVisualizer::getTitle() const
 
 void OctavebandsVisualizer::audioThreadFunc()
 {
-    SimpleRecordClient src(10 * 1000, "pulseviz", "octavebands");
-    STFT stft(
-        src,
-        constants.fft_size,
-        constants.window_size,
-        constants.window_overlap,
-        STFT::Window::HAMMING,
-        STFT::Weighting::Z
-    );
-    BandsAnalyzer bands_analyzer(stft, generateOctaveBands(constants.n), BandWeighting::Z);
-
     while (!this->quit_thread)
     {
-        bands_analyzer.tick();
+        this->bands_analyzer.tick();
         this->render_mutex.lock();
         unsigned int i = 0;
         for (Bar &bar: this->bars)
         {
-            bar.height = bands_analyzer.getBands()[i].magnitude;
+            bar.height = this->bands_analyzer.getBands()[i].magnitude;
             i += 1;
         }
         this->render_mutex.unlock();
@@ -158,20 +165,6 @@ void OctavebandsVisualizer::draw()
     this->render_mutex.unlock();
 }
 
-void OctavebandsVisualizer::attachSRC()
-{
-    this->quit_thread = false;
-    this->audio_thread = std::thread([this] {
-        this->audioThreadFunc();
-    });
-}
-
-void OctavebandsVisualizer::detatchSRC()
-{
-    this->quit_thread = true;
-    this->audio_thread.join();
-}
-
 OctavebandsVisualizerFactory::OctavebandsVisualizerFactory(const IniParser& ini)
 {
     OctavebandsVisualizer::loadConfig(ini);
@@ -179,5 +172,6 @@ OctavebandsVisualizerFactory::OctavebandsVisualizerFactory(const IniParser& ini)
 
 std::unique_ptr<Visualizer> OctavebandsVisualizerFactory::create() const
 {
-    return std::unique_ptr<Visualizer>(new OctavebandsVisualizer());
+    auto* visualizer = new OctavebandsVisualizer();
+    return std::unique_ptr<Visualizer>(visualizer);
 }

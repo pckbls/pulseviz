@@ -21,18 +21,18 @@ public:
 
     OctavebandsVisualizer();
     ~OctavebandsVisualizer() override;
-
     const std::string getTitle() const override;
-
-    void attachSRC() override;
-    void detatchSRC() override;
     void draw() override;
     void resize(int width, int height) override;
 
-protected:
+private:
     void audioThreadFunc();
     bool quit_thread;
     std::thread audio_thread;
+
+    SimpleRecordClient src;
+    STFT stft;
+    BandsAnalyzer bands_analyzer;
 
     void updateTicks();
     std::chrono::steady_clock::time_point last_render_tp;
