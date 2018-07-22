@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <tuple>
 
 namespace util
 {
@@ -10,6 +11,7 @@ namespace util
 std::string dirname(const std::string& path);
 std::string getHomeDirectory();
 bool dir_exists(const std::string& path);
+std::tuple<unsigned char, unsigned char, unsigned char> parseRGBHexString(const std::string& string);
 
 // See: https://stackoverflow.com/a/11747023
 template<typename T>
