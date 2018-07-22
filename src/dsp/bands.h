@@ -17,7 +17,6 @@ struct Band
         float lower, center, upper;
     } frequencies;
 
-    float weight;
     float magnitude;
 
     struct
@@ -26,17 +25,12 @@ struct Band
     } indices;
 };
 
-enum class BandWeighting
-{
-    Z
-};
-
 class BandsAnalyzer
 {
 public:
     using FrequencyBin = std::pair<float, float>;
 
-    BandsAnalyzer(STFT& stft, std::vector<FrequencyBin> frequency_bins, BandWeighting band_weighting);
+    BandsAnalyzer(STFT& stft, std::vector<FrequencyBin> frequency_bins);
     BandsAnalyzer(BandsAnalyzer const& other) = delete;
     void tick(); // TODO: Find a better functuion name...
     const std::vector<Band>& getBands();

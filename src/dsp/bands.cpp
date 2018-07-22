@@ -23,7 +23,7 @@ std::vector<BandsAnalyzer::FrequencyBin> generateOctaveBands(unsigned int fracti
     return result;
 }
 
-BandsAnalyzer::BandsAnalyzer(STFT &stft, std::vector<FrequencyBin> frequency_bins, BandWeighting band_weighting)
+BandsAnalyzer::BandsAnalyzer(STFT &stft, std::vector<FrequencyBin> frequency_bins)
     :
     stft(stft)
 {
@@ -41,11 +41,6 @@ BandsAnalyzer::BandsAnalyzer(STFT &stft, std::vector<FrequencyBin> frequency_bin
 
         band.indices.lower = static_cast<unsigned int>(util::clip(std::ceil(band.frequencies.lower * k), 0.0f, max_upper_index));
         band.indices.upper = static_cast<unsigned int>(util::clip(std::ceil(band.frequencies.upper * k), 0.0f, max_upper_index));
-
-        switch (band_weighting)
-        {
-            case BandWeighting::Z: band.weight = 1.0; break;
-        }
 
         this->bands.push_back(band);
     }
