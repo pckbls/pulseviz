@@ -45,4 +45,4 @@ target_link_libraries(run_tests
 add_custom_target(test)
 add_dependencies(test run_tests)
 
-gtest_add_tests(TARGET run_tests)
+gtest_discover_tests(run_tests)
