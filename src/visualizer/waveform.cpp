@@ -14,9 +14,9 @@ WaveFormVisualizer::WaveFormVisualizer(size_t buffer_size)
     Visualizer(),
     samples(buffer_size),
     shader("waveform"),
-    palette{16, {
+    palette{64, {
         {0.0, {0.0, 0.0, 1.0}},
-        {0.5, {1.0, 0.0, 1.0}},
+        {0.5, {1.0, 0.0, 0.5}},
         {1.0, {1.0, 1.0, 1.0}},
     }}
 {
@@ -66,12 +66,12 @@ void WaveFormVisualizer::draw()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
+    this->shader.bind();
     glActiveTexture(GL_TEXTURE0 + 0);
     glUniform1i(this->shader.getUniformLocation("palette"), 0);
     glBindTexture(GL_TEXTURE_1D, this->palette.getHandle());
 
     this->mutex.lock();
-    this->shader.bind();
     glLineWidth(2.0);
     glBegin(GL_LINE_STRIP);
     float x = 0.0;
@@ -83,8 +83,9 @@ void WaveFormVisualizer::draw()
         glVertex2f(x, y);
     }
     glEnd();
-    this->shader.unbind();
     this->mutex.unlock();
+
+    this->shader.unbind();
 }
 
 WaveFormVisualizerFactory::WaveFormVisualizerFactory(const IniParser& ini)
