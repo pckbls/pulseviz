@@ -5,15 +5,18 @@ varying vec2 tex_coord;
 uniform sampler2D texture;
 uniform sampler1D palette;
 
+uniform float coord_coeff; // TODO: Find a better name.
+uniform float freq_min, freq_max;
+
 void main(void)
 {
     vec2 texcoord = tex_coord;
 
-    // TODO: Proper log scaling!
-    texcoord.x = pow(texcoord.x, 2.0);
+    texcoord.x = exp(texcoord.x * coord_coeff) * freq_min;
+    texcoord.x = (texcoord.x - freq_min) / (freq_max - freq_min);
 
     // TODO: Is this check really correct?
-    if (texcoord.x >= 1.0)
+    if (texcoord.x >= 1.0 || texcoord.x < 0.0)
     {
         // This should not happen!
         gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
