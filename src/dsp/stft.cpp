@@ -110,6 +110,8 @@ float STFT::calculateFrequencyWeighting(float frequency, STFT::Weighting weighti
             return 1.0f;
         }
     }
+
+    throw "This should never happen at all.";
 }
 
 std::vector<float> STFT::generateHammingWindow(unsigned int n)
