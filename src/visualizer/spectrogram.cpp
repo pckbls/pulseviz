@@ -1,40 +1,45 @@
 #include <iostream>
+#include <cmath>
 #include "spectrogram.h"
 
-struct
-{
-    unsigned int fft_size = 4096;
-    unsigned int window_size = 1024;
-    unsigned int history_size = 512;
-    float window_overlap = 0.5;
-    float y_min = -70.0;
-    float y_max = 0.0;
-    bool scrolling = true;
-} constants;
-
-void SpectrogramVisualizer::loadConfig(const IniParser& ini)
-{
-    constants.scrolling = ini.getOptionAsBool("spectrogram", "scrolling");
-    constants.history_size = ini.getOptionAsUnsignedInteger("spectrogram", "history_size");
-}
-
-SpectrogramVisualizer::SpectrogramVisualizer()
+SpectrogramVisualizer::SpectrogramVisualizer(const SpectrogramVisualizerFactory& factory)
     :
     Visualizer(),
-    row((constants.fft_size / 2) + 1),
-    texture(constants.history_size, row.size()),
+    factory(factory),
+    src(10 * 1000, "pulseviz", "spectrogram"),
+    stft(
+        this->src,
+        factory.fft_size,
+        1024,
+        0.5,
+        STFT::Window::HAMMING,
+        STFT::Weighting::Z
+    ),
+    // TODO: Explain why - 1!
+    row(stft.coefficients.size() - 1),
+    // TODO: Unfortunately texture size is capped on most GPUs, still make it possible to use large fft_sizes
+    // in combination with smaller texture sizes. Could be achieved by drawing new data sets using a FBO.
+    texture(factory.history_size, row.size()),
     shader("spectrogram"),
-    palette{16, {
+    palette{64, {
         {0.00, {0.0f, 0.0f, 0.0f}},
-        {0.10, {0.0f, 0.0f, 0.5f}},
-        {0.30, {1.0f, 0.0f, 1.0f}},
+        {0.20, {0.0f, 0.0f, 0.5f}},
+        {0.45, {1.0f, 0.0f, 1.0f}},
         {0.80, {1.0f, 1.0f, 0.0f}},
         {1.00, {1.0f, 1.0f, 1.0f}}
     }}
-{}
+{
+    this->quit_thread = false;
+    this->audio_thread = std::thread([this] {
+        this->audioThreadFunc();
+    });
+}
 
 SpectrogramVisualizer::~SpectrogramVisualizer()
-{}
+{
+    this->quit_thread = true;
+    this->audio_thread.join();
+}
 
 const std::string SpectrogramVisualizer::getTitle() const
 {
@@ -43,25 +48,13 @@ const std::string SpectrogramVisualizer::getTitle() const
 
 void SpectrogramVisualizer::audioThreadFunc()
 {
-    SimpleRecordClient src(10 * 1000, "pulseviz", "spectrogram");
-    STFT stft(
-        src,
-        constants.fft_size,
-        constants.window_size,
-        constants.window_overlap,
-        STFT::Window::HAMMING
-    );
-
     while (!this->quit_thread)
     {
-        stft.slide();
+        this->stft.slide();
         this->render_mutex.lock();
         // TODO: I think this section could be optimized. A for loop looks expensive.
-        for (unsigned int i = 0; i < stft.coefficients.size(); i++)
-        {
-            float coefficient_in_dB = stft.coefficients[i];
-            this->row[i] = (coefficient_in_dB - constants.y_min) / (constants.y_max - constants.y_min);
-        }
+        for (unsigned int i = 1; i < this->stft.coefficients.size(); i++)
+            this->row[i] = (this->stft.coefficients[i] - this->factory.dB_min) / (this->factory.dB_clip - this->factory.dB_min);
         this->render_mutex.unlock();
     }
 }
@@ -85,7 +78,7 @@ void SpectrogramVisualizer::draw()
     this->render_mutex.unlock();
 
     float start_index, end_index;
-    if (constants.scrolling)
+    if (this->factory.scrolling)
     {
         auto coordinates = this->texture.getCursorCoordinates();
         start_index = coordinates.first;
@@ -106,37 +99,45 @@ void SpectrogramVisualizer::draw()
     glUniform1i(this->shader.getUniformLocation("palette"), 1);
     glBindTexture(GL_TEXTURE_1D, this->palette.getHandle());
 
+    float b = log(this->stft.getFrequencies().back() / this->stft.getFrequencies()[1]) / (1.0f - 0.0f);
+    glUniform1f(this->shader.getUniformLocation("coord_coeff"), b);
+    glUniform1f(this->shader.getUniformLocation("freq_min"), this->stft.getFrequencies()[1]);
+    glUniform1f(this->shader.getUniformLocation("freq_max"), this->stft.getFrequencies().back());
+
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, start_index); glVertex2f(0.0, 0.0);
-    glTexCoord2f(0.0, end_index); glVertex2f(1.0, 0.0);
-    glTexCoord2f(1.0, end_index); glVertex2f(1.0, 1.0);
-    glTexCoord2f(1.0, start_index); glVertex2f(0.0, 1.0);
+    if (!this->factory.vertical)
+    {
+        glTexCoord2f(0.0, start_index); glVertex2f(0.0, 0.0);
+        glTexCoord2f(0.0, end_index); glVertex2f(1.0, 0.0);
+        glTexCoord2f(1.0, end_index); glVertex2f(1.0, 1.0);
+        glTexCoord2f(1.0, start_index); glVertex2f(0.0, 1.0);
+    }
+    else
+    {
+        glTexCoord2f(0.0, end_index); glVertex2f(0.0, 1.0);
+        glTexCoord2f(0.0, start_index); glVertex2f(0.0, 0.0);
+        glTexCoord2f(1.0, start_index); glVertex2f(1.0, 0.0);
+        glTexCoord2f(1.0, end_index); glVertex2f(1.0, 1.0);
+    }
     glEnd();
 
     this->shader.unbind();
 }
 
-void SpectrogramVisualizer::attachSRC()
-{
-
-    this->quit_thread = false;
-    this->audio_thread = std::thread([this] {
-        this->audioThreadFunc();
-    });
-}
-
-void SpectrogramVisualizer::detatchSRC()
-{
-    this->quit_thread = true;
-    this->audio_thread.join();
-}
-
 SpectrogramVisualizerFactory::SpectrogramVisualizerFactory(const IniParser& ini)
 {
-    SpectrogramVisualizer::loadConfig(ini);
+    this->dB_min = ini.getOptionAsFloat("general", "dB_min");
+    this->dB_max = ini.getOptionAsFloat("general", "dB_max");
+    this->dB_clip = ini.getOptionAsFloat("general", "dB_clip");
+    this->fft_size = ini.getOptionAsUnsignedInteger("fft", "fft_size");
+
+    this->history_size = ini.getOptionAsUnsignedInteger("spectrogram", "history_size");
+    this->scrolling = ini.getOptionAsBool("spectrogram", "scrolling");
+    this->vertical = ini.getOptionAsBool("spectrogram", "vertical");
 }
 
 std::unique_ptr<Visualizer> SpectrogramVisualizerFactory::create() const
 {
-    return std::unique_ptr<Visualizer>(new SpectrogramVisualizer());
+    auto* visualizer = new SpectrogramVisualizer(*this);
+    return std::unique_ptr<Visualizer>(visualizer);
 }

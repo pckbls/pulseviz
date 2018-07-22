@@ -8,26 +8,26 @@
 #include "../gfx/ringbuffertexture.h"
 #include "../dsp/stft.h"
 
+class SpectrogramVisualizerFactory;
+
 class SpectrogramVisualizer : public Visualizer
 {
 public:
-    static void loadConfig(const IniParser& ini);
-    static const std::string name;
-
-    SpectrogramVisualizer();
+    SpectrogramVisualizer(const SpectrogramVisualizerFactory& factory);
     ~SpectrogramVisualizer() override;
-
     const std::string getTitle() const override;
-
-    void attachSRC() override;
-    void detatchSRC() override;
     void draw() override;
     void resize(int width, int height) override;
 
-protected:
+private:
+    const SpectrogramVisualizerFactory& factory;
+
     void audioThreadFunc();
     bool quit_thread;
     std::thread audio_thread;
+
+    SimpleRecordClient src;
+    STFT stft;
 
     std::vector<float> row;
     RingBufferTexture2D texture;
@@ -41,9 +41,17 @@ protected:
 
 class SpectrogramVisualizerFactory : public VisualizerFactory
 {
+    friend class SpectrogramVisualizer;
+
 public:
     SpectrogramVisualizerFactory(const IniParser& ini);
     std::unique_ptr<Visualizer> create() const;
+
+private:
+    size_t fft_size, history_size;
+    float dB_min, dB_max, dB_clip;
+    bool scrolling;
+    bool vertical;
 };
 
 #endif // SPECTROGRAM_H
