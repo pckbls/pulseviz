@@ -19,9 +19,6 @@ PaletteTexture::PaletteTexture(size_t width, ColorVector colors)
     glTexParameterfv(GL_TEXTURE_1D, GL_TEXTURE_BORDER_COLOR, border_color);
     this->setWrapMode(GL_CLAMP_TO_BORDER);
 
-    // TODO: Remove!
-    this->setWrapMode(GL_CLAMP_TO_EDGE);
-
     std::vector<float> data(this->getLength() * 3);
 
     for (unsigned int i = 0; i < data.size(); i += 3)
