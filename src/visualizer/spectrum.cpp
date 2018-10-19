@@ -102,8 +102,8 @@ void SpectrumVisualizer::drawGrid() const
     glDisable(GL_TEXTURE_1D);
     glDisable(GL_TEXTURE_2D);
 
-    glBegin(GL_LINES);
     glLineWidth(1.0f);
+    glBegin(GL_LINES);
     glColor3f(0.1f, 0.1f, 0.1f);
 
     // Vertical lines
@@ -143,8 +143,8 @@ void SpectrumVisualizer::draw()
     this->shader.bind();
     this->shader.bindTextureToUniform("palette", this->palette, 0);
 
-    glBegin(GL_LINE_STRIP);
     glLineWidth(1.0f);
+    glBegin(GL_LINE_STRIP);
 
     // We start at i = 1 because we do not want to draw the DC component
     // that is stored at i = 0.
